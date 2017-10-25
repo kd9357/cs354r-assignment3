@@ -17,13 +17,14 @@ http://www.ogre3d.org/wiki/
 #include <iostream>
 #include "TutorialApplication.h"
 
-
-// Ball* ball;
-// Simulator* sim;
-
 //---------------------------------------------------------------------------
 TutorialApplication::TutorialApplication(void)
 {
+    //Start as single player
+    mMultiplayer = false;
+    mPortNumber = 51215;
+    //Hardcoded IP number
+    mIPAddress = "128.83.120.97";
 }
 //---------------------------------------------------------------------------
 TutorialApplication::~TutorialApplication(void)
@@ -114,6 +115,18 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
         mCamNode->yaw(Ogre::Degree(-mRotate), Ogre::Node::TS_WORLD);
         paddle->getRootNode()->yaw(Ogre::Degree(-mRotate), Ogre::Node::TS_WORLD);
     }
+    if(mKeyboard->isKeyDown(OIS::KC_I) && !mNetworkingStarted)
+    {
+        startNetworking(false);
+    }
+    if(mKeyboard->isKeyDown(OIS::KC_O) && !mNetworkingStarted)
+    {
+        startNetworking(true);
+    }
+    if(mKeyboard->isKeyDown(OIS::KC_P) && mNetworkingStarted)
+    {
+        stopNetworking();
+    }
     mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
     paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
     return true;
@@ -127,6 +140,35 @@ bool TutorialApplication::mouseMoved(const OIS::MouseEvent& me) {
     //     std::cout << "xrel positive\n";
     return true;
 }
+
+//---------------------------------------------------------------------------
+//Button call to determine which kind of netmanager to start
+void TutorialApplication::startNetworking(bool isClient) {
+    mNetworkingStarted = true;
+    mIsClient = isClient;
+    mMultiplayer = true;
+    netManager.initNetManager();
+    if(!isClient)   //is Server
+    {
+        netManager.addNetworkInfo(PROTOCOL_TCP, NULL, mPortNumber);
+        netManager.startServer();
+        netManager.acceptConnections();
+        std::cout << "Started Server\n";
+    }
+    else {
+        netManager.addNetworkInfo(PROTOCOL_TCP, mIPAddress, mPortNumber);
+        netManager.startClient();
+        std::cout << "Started Client\n";
+    }
+}
+
+//---------------------------------------------------------------------------
+void TutorialApplication::stopNetworking() {
+    netManager.close();
+    mNetworkingStarted = false;
+    std::cout << "Networking stopped\n";
+}
+
 //---------------------------------------------------------------------------
 bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {

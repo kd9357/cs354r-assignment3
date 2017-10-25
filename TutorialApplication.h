@@ -23,7 +23,7 @@ http://www.ogre3d.org/wiki/
 #include "PlayingField.h"
 #include "Ball.h"
 #include "Paddle.h"
-
+#include "NetManager.h"
 
 //---------------------------------------------------------------------------
 
@@ -44,6 +44,10 @@ protected:
     // Ogre::FrameListener
     virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
+    //helper functions
+    void startNetworking(bool isClient);
+    void stopNetworking();
+
     //Simulator and Game objects
     Simulator * sim;
     PlayingField * field;
@@ -54,6 +58,14 @@ protected:
     Ogre::Vector3 mDirection;
     Ogre::Real mMove;
     Ogre::Real mRotate;
+
+    //Networking Parameters
+    NetManager netManager;
+    bool mNetworkingStarted;
+    int mPortNumber;
+    char* mIPAddress;
+    bool mIsClient;
+    bool mMultiplayer;
 };
 
 //---------------------------------------------------------------------------
