@@ -95,6 +95,7 @@ void TutorialApplication::createViewports(void)
 bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
 {
     //Camera controls
+    static bool buttonPressed = false;
     //For now, also move paddle
     Ogre::Vector3 dirVec = mCamera->getPosition();
     if(mKeyboard->isKeyDown(OIS::KC_W))
@@ -122,10 +123,22 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
     if(mKeyboard->isKeyDown(OIS::KC_O) && !mNetworkingStarted)
     {
         startNetworking(true);
+        std::cout << "Hostname: " << netManager.getHostname() << std::endl;
     }
     if(mKeyboard->isKeyDown(OIS::KC_P) && mNetworkingStarted)
     {
         stopNetworking();
+    }
+    if(mKeyboard->isKeyDown(OIS::KC_L) && mNetworkingStarted && !buttonPressed)
+    {   
+        buttonPressed = true;
+        char* message = "hello";
+        netManager.messageClients(PROTOCOL_ALL, message, 10);
+    }
+    if(mKeyboard->isKeyDown(OIS::KC_SPACE) && mNetworkingStarted)
+    {
+        std::cout << "number of clients: " << netManager.getClients() << "\n";
+
     }
     mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
     paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
@@ -150,13 +163,13 @@ void TutorialApplication::startNetworking(bool isClient) {
     netManager.initNetManager();
     if(!isClient)   //is Server
     {
-        netManager.addNetworkInfo(PROTOCOL_TCP, NULL, mPortNumber);
+        netManager.addNetworkInfo(PROTOCOL_ALL, NULL, mPortNumber);
         netManager.startServer();
         netManager.acceptConnections();
         std::cout << "Started Server\n";
     }
     else {
-        netManager.addNetworkInfo(PROTOCOL_TCP, mIPAddress, mPortNumber);
+        netManager.addNetworkInfo(PROTOCOL_ALL, mIPAddress, mPortNumber);
         netManager.startClient();
         std::cout << "Started Client\n";
     }
