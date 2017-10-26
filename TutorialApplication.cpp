@@ -116,26 +116,34 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
         mCamNode->yaw(Ogre::Degree(-mRotate), Ogre::Node::TS_WORLD);
         paddle->getRootNode()->yaw(Ogre::Degree(-mRotate), Ogre::Node::TS_WORLD);
     }
-    if(mKeyboard->isKeyDown(OIS::KC_I) && !mNetworkingStarted)
+    if(mKeyboard->isKeyDown(OIS::KC_I) && !mNetworkingStarted)  //start as server
     {
         startNetworking(false);
     }
-    if(mKeyboard->isKeyDown(OIS::KC_O) && !mNetworkingStarted)
+    if(mKeyboard->isKeyDown(OIS::KC_O) && !mNetworkingStarted)  //start as client
     {
         startNetworking(true);
         std::cout << "Hostname: " << netManager.getHostname() << std::endl;
     }
-    if(mKeyboard->isKeyDown(OIS::KC_P) && mNetworkingStarted)
+    if(mKeyboard->isKeyDown(OIS::KC_P) && mNetworkingStarted)   //end session
     {
         stopNetworking();
     }
-    if(mKeyboard->isKeyDown(OIS::KC_L) && mNetworkingStarted && !buttonPressed)
+    if(mKeyboard->isKeyDown(OIS::KC_L) && mNetworkingStarted && !buttonPressed) //send message
     {   
         buttonPressed = true;
-        char* message = "hello";
-        netManager.messageClients(PROTOCOL_ALL, message, 10);
+        if(mIsClient)
+        {
+            char* message = "hello server";
+            netManager.messageServer(PROTOCOL_ALL, message, 10);
+        }
+        else
+        {
+            char* message = "hello clients";
+            netManager.messageClients(PROTOCOL_ALL, message, 10);
+        }
     }
-    if(mKeyboard->isKeyDown(OIS::KC_SPACE) && mNetworkingStarted)
+    if(mKeyboard->isKeyDown(OIS::KC_SPACE) && mNetworkingStarted)   //get networking info
     {
         std::cout << "number of clients: " << netManager.getClients() << "\n";
 
