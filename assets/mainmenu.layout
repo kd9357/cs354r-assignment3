@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="DefaultWindow" name="DefaultWindow" >
+        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Window type="Vanilla/FrameWindow" name="FrameWindow" >
+            <Property name="Area" value="{{0,513},{0,205},{0.3,322},{0.3,220}}" />
+            <Window type="Vanilla/Titlebar" name="Titlebar" >
+                <Property name="Area" value="{{0,-3},{0,1},{0,192},{0,33}}" />
+                <Property name="Text" value="Game" />
+                <Property name="AlwaysOnTop" value="true" />
+            </Window>
+            <Window type="Vanilla/Button" name="Button" >
+                <Property name="Area" value="{{0,40},{0,34},{0,136},{0,66}}" />
+                <Property name="Text" value="Single Player" />
+            </Window>
+            <Window type="Vanilla/Button" name="Button2" >
+                <Property name="Area" value="{{0,40},{0,83},{0,136},{0,115}}" />
+                <Property name="Text" value="Multi Player" />
+            </Window>
+            <Window type="Vanilla/Button" name="Button3" >
+                <Property name="Area" value="{{0,40},{0,130},{0,136},{0,162}}" />
+                <Property name="Text" value="Settings" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>
