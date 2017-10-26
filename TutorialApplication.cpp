@@ -131,22 +131,36 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
     {
         stopNetworking();
     }
-    if(mKeyboard->isKeyDown(OIS::KC_L) && mNetworkingStarted ) //send message
-    {   
-        if(mIsClient)
-        {
-            Ogre::String message = "helloserver ";
-            netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
-        }
-        else
-        {
-            Ogre::String message = "helloclients ";
-            netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
-        }
-    }
+    // if(mKeyboard->isKeyDown(OIS::KC_L) && mNetworkingStarted ) //send message
+    // {   
+    //     if(mIsClient)
+    //     {
+    //         Ogre::String message = "helloserver ";
+    //         netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
+    //     }
+    //     else
+    //     {
+    //         Ogre::String message = "helloclients ";
+    //         netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
+    //     }
+    // }
     if(mKeyboard->isKeyDown(OIS::KC_SPACE) && mNetworkingStarted)   //get networking info
     {
         std::cout << "number of clients: " << netManager.getClients() << "\n";
+    }
+    Ogre::String message = "";
+    message += Ogre::StringConverter::toString(dirVec.x) + " ";
+    message += Ogre::StringConverter::toString(dirVec.y) + " ";
+    message += Ogre::StringConverter::toString(dirVec.z) + " ";
+
+    if(mNetworkingStarted)
+    {
+        if(mIsClient)
+        {
+            netManager.messageServer(PROTOCOL_ALL, message.c_str(), message.length());
+        }
+        else if(netManager.getClients() > 0)
+            netManager.messageClients(PROTOCOL_ALL, message.c_str(), message.length());
     }
     mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
     paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
@@ -171,13 +185,13 @@ void TutorialApplication::startNetworking(bool isClient) {
     netManager.initNetManager();
     if(!isClient)   //is Server
     {
-        netManager.addNetworkInfo(PROTOCOL_UDP, NULL, mPortNumber);
+        netManager.addNetworkInfo(PROTOCOL_ALL, NULL, mPortNumber);
         netManager.startServer();
         netManager.acceptConnections();
         std::cout << "Started Server\n";
     }
     else {
-        netManager.addNetworkInfo(PROTOCOL_UDP, mIPAddress, mPortNumber);
+        netManager.addNetworkInfo(PROTOCOL_ALL, mIPAddress, mPortNumber);
         netManager.startClient();
         std::cout << "Started Client\n";
     }
@@ -205,6 +219,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     {
         sim->stepSimulation(evt.timeSinceLastFrame);
     }
+    Ogre::Vector3 dirVec = mCamera->getPosition();
     if(mNetworkingStarted)
     {
         if(mIsClient)
@@ -217,9 +232,15 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 std::string s;
                 stream >> s;
                 std::cout << "message from server: " << s << std::endl;
+                dirVec.x = atof(s.c_str());
+                stream >> s;
+                dirVec.y = atof(s.c_str());
+                stream >> s;
+                dirVec.z = atof(s.c_str());
+                std::cout << "client: dirvec.x = " << dirVec.x << " dirvec.y " << dirVec.y << " dirVec.z " << dirVec.z << std::endl;
             }
         }
-        else
+        else /*if(netManager.getClients() > 0)*/
         {
             if(netManager.pollForActivity(1))
             {
@@ -229,10 +250,18 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 std::string s;
                 stream >> s;
                 std::cout << "message from client: " << s << std::endl;
+                dirVec.x = atof(s.c_str());
+                stream >> s;
+                dirVec.y = atof(s.c_str());
+                stream >> s;
+                dirVec.z = atof(s.c_str());
 
+                std::cout << "server: dirvec.x = " << dirVec.x << " dirvec.y " << dirVec.y << " dirVec.z " << dirVec.z << std::endl;
             }
         }
     }
+    mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
+    paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
 
     if(!processUnbufferedInput(evt))
         return false;
