@@ -15,6 +15,8 @@ http://www.ogre3d.org/wiki/
 -----------------------------------------------------------------------------
 */
 #include <iostream>
+#include <sstream>
+#include <string>
 #include "TutorialApplication.h"
 
 //---------------------------------------------------------------------------
@@ -24,7 +26,7 @@ TutorialApplication::TutorialApplication(void)
     mMultiplayer = false;
     mPortNumber = 51215;
     //Hardcoded IP number
-    mIPAddress = "128.83.120.97";
+    mIPAddress = "128.83.139.157";
 }
 //---------------------------------------------------------------------------
 TutorialApplication::~TutorialApplication(void)
@@ -95,7 +97,7 @@ void TutorialApplication::createViewports(void)
 bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
 {
     //Camera controls
-    static bool buttonPressed = false;
+    //static bool buttonPressed = false;
     //For now, also move paddle
     Ogre::Vector3 dirVec = mCamera->getPosition();
     if(mKeyboard->isKeyDown(OIS::KC_W))
@@ -129,24 +131,22 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
     {
         stopNetworking();
     }
-    if(mKeyboard->isKeyDown(OIS::KC_L) && mNetworkingStarted && !buttonPressed) //send message
+    if(mKeyboard->isKeyDown(OIS::KC_L) && mNetworkingStarted ) //send message
     {   
-        buttonPressed = true;
         if(mIsClient)
         {
-            char* message = "hello server";
-            netManager.messageServer(PROTOCOL_ALL, message, 10);
+            Ogre::String message = "helloserver ";
+            netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
         }
         else
         {
-            char* message = "hello clients";
-            netManager.messageClients(PROTOCOL_ALL, message, 10);
+            Ogre::String message = "helloclients ";
+            netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
         }
     }
     if(mKeyboard->isKeyDown(OIS::KC_SPACE) && mNetworkingStarted)   //get networking info
     {
         std::cout << "number of clients: " << netManager.getClients() << "\n";
-
     }
     mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
     paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
@@ -171,13 +171,13 @@ void TutorialApplication::startNetworking(bool isClient) {
     netManager.initNetManager();
     if(!isClient)   //is Server
     {
-        netManager.addNetworkInfo(PROTOCOL_ALL, NULL, mPortNumber);
+        netManager.addNetworkInfo(PROTOCOL_UDP, NULL, mPortNumber);
         netManager.startServer();
         netManager.acceptConnections();
         std::cout << "Started Server\n";
     }
     else {
-        netManager.addNetworkInfo(PROTOCOL_ALL, mIPAddress, mPortNumber);
+        netManager.addNetworkInfo(PROTOCOL_UDP, mIPAddress, mPortNumber);
         netManager.startClient();
         std::cout << "Started Client\n";
     }
@@ -204,6 +204,34 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     if(sim)
     {
         sim->stepSimulation(evt.timeSinceLastFrame);
+    }
+    if(mNetworkingStarted)
+    {
+        if(mIsClient)
+        {
+            if(netManager.pollForActivity(1))
+            {
+                std::cout << "received message from server" << std::endl;
+               
+                std::istringstream stream(netManager.udpServerData[0].output);
+                std::string s;
+                stream >> s;
+                std::cout << "message from server: " << s << std::endl;
+            }
+        }
+        else
+        {
+            if(netManager.pollForActivity(1))
+            {
+                std::cout << "received message from client" << std::endl;
+
+                std::istringstream stream(netManager.udpClientData[0]->output);
+                std::string s;
+                stream >> s;
+                std::cout << "message from client: " << s << std::endl;
+
+            }
+        }
     }
 
     if(!processUnbufferedInput(evt))
