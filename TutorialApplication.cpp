@@ -25,6 +25,7 @@ TutorialApplication::TutorialApplication(void)
     //Start as single player
     mMultiplayer = false;
     mPortNumber = 51215;
+    mNetworkingStarted = false;
     //Hardcoded IP number
     mIPAddress = "128.83.139.157";
 }
@@ -70,7 +71,12 @@ void TutorialApplication::createScene(void)
     //For now, it's positioning will match that of the camera
     paddle = new Paddle(mSceneMgr, sim, 25, 25, "paddle");
     paddle->getRootNode()->setPosition(20, 25, 50);
+
+    paddle2 = new Paddle(mSceneMgr, sim, 25, 25, "paddle2");
+    paddle2->getRootNode()->setPosition(-20, 25, 50);
+
     paddle->addToSimulator();
+    paddle2->addToSimulator();
 }
 //---------------------------------------------------------------------------
 void TutorialApplication::createCamera(void)
@@ -81,7 +87,7 @@ void TutorialApplication::createCamera(void)
     mCamNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode");
     mCamNode->setPosition(Ogre::Vector3(0, 25, 150));
     mCamNode->attachObject(mCamera);
-    mMove = 0.1;
+    mMove = 0.2;
     mRotate = 0.05;
 }
 //---------------------------------------------------------------------------
@@ -149,8 +155,14 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
         std::cout << "number of clients: " << netManager.getClients() << "\n";
     }
 
-    mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
-    paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
+    //mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
+    if(mNetworkingStarted)
+    {
+        if(!mIsClient)
+            paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
+        else
+            paddle2->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
+    }
     return true;
 }
 
@@ -213,6 +225,11 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     {
         Ogre::String message = "";
         message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
+        message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().y) + " ";
+
+        message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().x) + " ";
+        message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().y) + " ";
+
 
         if(mIsClient)
         {
@@ -237,9 +254,18 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 stream >> s;
                 std::cout << "message from server: " << s << std::endl;
                 float x = atof(s.c_str());
-                float y = paddle->getRootNode()->getPosition().y;
+                stream >> s;
+                float y = atof(s.c_str());
                 float z = paddle->getRootNode()->getPosition().z;
+                
+                stream >> s;
+                float x2 = atof(s.c_str());
+                stream >> s;
+                float y2 = atof(s.c_str());
+                float z2 = paddle2->getRootNode()->getPosition().z;
+
                 paddle->getRootNode()->setPosition(x, y, z);
+                paddle2->getRootNode()->setPosition(x2, y2, z2);
             }
         }
         else /*if(netManager.getClients() > 0)*/
@@ -253,9 +279,18 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 stream >> s;
                 std::cout << "message from client: " << s << std::endl;
                 float x = atof(s.c_str());
-                float y = paddle->getRootNode()->getPosition().y;
+                stream >> s;
+                float y = atof(s.c_str());
                 float z = paddle->getRootNode()->getPosition().z;
+                
+                stream >> s;
+                float x2 = atof(s.c_str());
+                stream >> s;
+                float y2 = atof(s.c_str());
+                float z2 = paddle2->getRootNode()->getPosition().z;
+
                 paddle->getRootNode()->setPosition(x, y, z);
+                paddle2->getRootNode()->setPosition(x2, y2, z2);
             }
         }
     }

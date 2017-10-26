@@ -53,6 +53,7 @@ protected:
     PlayingField * field;
     Ball * ball;
     Paddle * paddle;
+    Paddle * paddle2;
     //Camera Parameters
     Ogre::SceneNode * mCamNode;
     Ogre::Vector3 mDirection;
