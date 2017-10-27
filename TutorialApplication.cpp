@@ -40,40 +40,28 @@ void TutorialApplication::createScene(void)
     // Create your scene here :)
     mSceneMgr->setAmbientLight(Ogre::ColourValue(0.4, 0.4, 0.4));
     mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
-    mSceneMgr->setSkyBox(true, "Examples/MorningSkyBox", 5000, false);
+    //mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8);
+    Ogre::Plane plane;
+    plane.d = 1000;
+    plane.normal = Ogre::Vector3::NEGATIVE_UNIT_Y;
+    mSceneMgr->setSkyPlane(true, plane, "Examples/SpaceSkyPlane", 800, 75);
 
     // Lights setup
     Ogre::Light* pointLight = mSceneMgr->createLight("PointLight");
     pointLight->setType(Ogre::Light::LT_POINT);
     pointLight->setDiffuseColour(1.0, 1.0, 1.0);
     pointLight->setSpecularColour(1.0, 1.0, 1.0);
-    pointLight->setPosition(0, 200, 0);
+    pointLight->setPosition(0, 0, 200);
 
-    Ogre::Light* spotLight = mSceneMgr->createLight("SpotLight");
-    spotLight->setDiffuseColour(0, 0, 1.0);
-    spotLight->setSpecularColour(0, 0, 1.0);
-    spotLight->setType(Ogre::Light::LT_SPOTLIGHT);
-    spotLight->setDirection(-1, -1, -1);
-    spotLight->setPosition(50, 50, 50);
-    spotLight->setSpotlightRange(Ogre::Degree(35), Ogre::Degree(50));
-  
     //Physics setup
     sim = new Simulator();
-    
-    field = new PlayingField(mSceneMgr, sim, 100, 100, "field");
-    field->addToSimulator();
-
-    ball = new Ball(mSceneMgr, sim, "ball");
-    ball->getRootNode()->setPosition(0, 50, 0);
-    ball->addToSimulator();
-    ball->setVelocity(0, 0, 50);
 
     //For now, it's positioning will match that of the camera
-    paddle = new Paddle(mSceneMgr, sim, 25, 25, "paddle");
-    paddle->getRootNode()->setPosition(20, 25, 50);
+    paddle = new Paddle(mSceneMgr, sim, 25, 25, "paddle", false);
+    paddle->getRootNode()->setPosition(20, 25, 0);
 
-    paddle2 = new Paddle(mSceneMgr, sim, 25, 25, "paddle2");
-    paddle2->getRootNode()->setPosition(-20, 25, 50);
+    paddle2 = new Paddle(mSceneMgr, sim, 25, 25, "paddle2", true);
+    paddle2->getRootNode()->setPosition(-20, 25, 0);
 
     paddle->addToSimulator();
     paddle2->addToSimulator();
@@ -85,8 +73,9 @@ void TutorialApplication::createCamera(void)
     // mCamera->lookAt(Ogre::Vector3(0, 25, 0));
     mCamera->setNearClipDistance(5);
     mCamNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode");
-    mCamNode->setPosition(Ogre::Vector3(0, 25, 150));
+    mCamNode->setPosition(Ogre::Vector3(0, -100, 0));
     mCamNode->attachObject(mCamera);
+    mCamNode->pitch(Ogre::Degree(90));
     mMove = 0.2;
     mRotate = 0.05;
 }

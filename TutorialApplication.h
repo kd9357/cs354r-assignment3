@@ -20,7 +20,6 @@ http://www.ogre3d.org/wiki/
 
 #include "BaseApplication.h"
 #include "Simulator.h"
-#include "PlayingField.h"
 #include "Ball.h"
 #include "Paddle.h"
 #include "NetManager.h"
@@ -50,7 +49,6 @@ protected:
 
     //Simulator and Game objects
     Simulator * sim;
-    PlayingField * field;
     Ball * ball;
     Paddle * paddle;
     Paddle * paddle2;
