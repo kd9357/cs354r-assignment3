@@ -65,6 +65,8 @@ void TutorialApplication::createScene(void)
 
     paddle->addToSimulator();
     paddle2->addToSimulator();
+
+    enemy = new Enemy(mSceneMgr, sim, "ogre");
 }
 //---------------------------------------------------------------------------
 void TutorialApplication::createCamera(void)

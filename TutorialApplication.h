@@ -23,6 +23,7 @@ http://www.ogre3d.org/wiki/
 #include "Ball.h"
 #include "Paddle.h"
 #include "NetManager.h"
+#include "Enemy.h"
 
 //---------------------------------------------------------------------------
 
@@ -52,6 +53,7 @@ protected:
     Ball * ball;
     Paddle * paddle;
     Paddle * paddle2;
+    Enemy * enemy;
     //Camera Parameters
     Ogre::SceneNode * mCamNode;
     Ogre::Vector3 mDirection;
