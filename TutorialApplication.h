@@ -56,9 +56,10 @@ protected:
     Paddle * paddle2;
     Enemy * enemy;
     int numEnemies;
-
-    int numClientProjectiles;
-    int numServerProjectiles;
+    int maxProjectiles;
+    
+    std::vector<Projectile*> serverProjectiles;
+    std::vector<Projectile*> clientProjectiles;
 
     //Camera Parameters
     Ogre::SceneNode * mCamNode;

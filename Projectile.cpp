@@ -16,6 +16,8 @@ Projectile::Projectile(Ogre::SceneManager* scnMgr, Simulator* sim, int* s, Ogre:
   mass = 1;
   shape = new btSphereShape(bRadius);
   score = s;
+
+  isActive = false;
 }
 
 Projectile::~Projectile()

@@ -27,8 +27,8 @@ TutorialApplication::TutorialApplication(void)
     mPortNumber = 51215;
     mNetworkingStarted = false;
     numEnemies = 0;
-    numClientProjectiles = 0;
-    numServerProjectiles = 0;
+    maxProjectiles = 5;
+
 
     //Hardcoded IP number
     mIPAddress = "128.83.139.157";
@@ -74,6 +74,21 @@ void TutorialApplication::createScene(void)
     ++numEnemies;
     enemy->getRootNode()->setPosition(0, 1000, 0);
     enemy->addToSimulator();
+
+
+    //Create projectiles
+    int temp;
+    for(int i = 0; i < maxProjectiles; ++i)
+    {
+        Ogre::String sName = "serverProjectile" + Ogre::StringConverter::toString(i);
+        Ogre::String cName = "clientProjectile" + Ogre::StringConverter::toString(i);
+        Projectile * sProjectile = new Projectile(mSceneMgr, sim, &temp, sName, false);
+        Projectile * cProjectile = new Projectile(mSceneMgr, sim, &temp, cName, true);
+        serverProjectiles.push_back(sProjectile);
+        clientProjectiles.push_back(cProjectile);
+        sProjectile->getRootNode()->setPosition(0, -100, 0);
+        cProjectile->getRootNode()->setPosition(0, -100, 0);
+    }
 }
 //---------------------------------------------------------------------------
 void TutorialApplication::createCamera(void)
@@ -158,27 +173,35 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
         keyPressed = true;
         if(!mIsClient)
         {
-            Ogre::String name = "serverProjectile" + Ogre::StringConverter::toString(numServerProjectiles);
-            ++numServerProjectiles;
-            Projectile * serverProjectile = new Projectile(mSceneMgr, sim, &temp, name, false);
-            serverProjectile->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
-                                                         paddle->getRootNode()->getPosition().y + 20,
-                                                         paddle->getRootNode()->getPosition().z );
+            for(int i = 0; i < maxProjectiles; ++i)
+            {
+                if(!serverProjectiles[i]->isActive)
+                {
+                    serverProjectiles[i]->isActive = true;
+                    break;
+                }
+            }
+            // Ogre::String name = "serverProjectile" + Ogre::StringConverter::toString(numServerProjectiles);
+            // ++numServerProjectiles;
+            // Projectile * serverProjectile = new Projectile(mSceneMgr, sim, &temp, name, false);
+            // serverProjectile->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
+            //                                              paddle->getRootNode()->getPosition().y + 20,
+            //                                              paddle->getRootNode()->getPosition().z );
 
-            serverProjectile->addToSimulator();
-            serverProjectile->setVelocity(0, 1000, 0);
+            // serverProjectile->addToSimulator();
+            // serverProjectile->setVelocity(0, 1000, 0);
         }
         else 
         {
-            Ogre::String name = "ClientProjectile" + Ogre::StringConverter::toString(numClientProjectiles);
-            ++numClientProjectiles;
-            Projectile * ClientProjectile = new Projectile(mSceneMgr, sim, &temp, name, true);
-            ClientProjectile->getRootNode()->setPosition(paddle2->getRootNode()->getPosition().x,
-                                                         paddle2->getRootNode()->getPosition().y + 20,
-                                                         paddle2->getRootNode()->getPosition().z );
+            // Ogre::String name = "ClientProjectile" + Ogre::StringConverter::toString(numClientProjectiles);
+            // ++numClientProjectiles;
+            // Projectile * ClientProjectile = new Projectile(mSceneMgr, sim, &temp, name, true);
+            // ClientProjectile->getRootNode()->setPosition(paddle2->getRootNode()->getPosition().x,
+            //                                              paddle2->getRootNode()->getPosition().y + 20,
+            //                                              paddle2->getRootNode()->getPosition().z );
 
-            ClientProjectile->addToSimulator();
-            ClientProjectile->setVelocity(0, 1000, 0);
+            // ClientProjectile->addToSimulator();
+            // ClientProjectile->setVelocity(0, 1000, 0);
         }
     }
 

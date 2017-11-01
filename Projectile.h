@@ -7,9 +7,13 @@ class Projectile : public GameObject
     Ogre::Real bRadius;
     float lastTime;
     int* score;
+
   public:
     Projectile(Ogre::SceneManager* scnMgr, Simulator* sim, int* score, Ogre::String n, bool isClient);
     ~Projectile();
+
+    bool isActive;
+
     void update(float elapsedTime);
-      void reset();
+    void reset();
 };
