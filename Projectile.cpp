@@ -18,6 +18,11 @@ Projectile::Projectile(Ogre::SceneManager* scnMgr, Simulator* sim, int* s, Ogre:
   score = s;
 }
 
+Projectile::~Projectile()
+{
+
+}
+
 //Specific game object update routine
 void Projectile::update(float elapsedTime) {
   lastTime += elapsedTime;
@@ -28,7 +33,11 @@ void Projectile::update(float elapsedTime) {
     Ogre::String objName = callback->ctxt.theObject->getName();
 
     //If hit with enemy, kill self, kill enemy, play sound, update specific player's score
-
+    if(objName.substr(0, 4) == "ogre")
+    {
+      //sceneMgr->destroyEntity(objName);
+      //sceneMgr->destroySceneNode(rootNode);
+    }
     //Should kill self after certain time or traveled certain distance (how to track either? collision with invisible back wall instead?)
 
 

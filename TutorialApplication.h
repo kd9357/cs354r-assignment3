@@ -55,6 +55,7 @@ protected:
     Paddle * paddle;
     Paddle * paddle2;
     Enemy * enemy;
+    int numEnemies;
     //Camera Parameters
     Ogre::SceneNode * mCamNode;
     Ogre::Vector3 mDirection;

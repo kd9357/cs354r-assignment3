@@ -21,6 +21,11 @@ void Simulator::addObject(GameObject* o)
 	dynamicsWorld->addRigidBody(o->getBody());
 }
 
+bool Simulator::removeObject(GameObject* o)
+{
+	
+}
+
 btAlignedObjectArray<btCollisionShape*> Simulator::getCollisionShapes()
 {
 	return this->collisionShapes;

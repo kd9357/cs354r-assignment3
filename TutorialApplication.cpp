@@ -26,6 +26,7 @@ TutorialApplication::TutorialApplication(void)
     mMultiplayer = false;
     mPortNumber = 51215;
     mNetworkingStarted = false;
+    numEnemies = 0;
     //Hardcoded IP number
     mIPAddress = "128.83.139.157";
 }
@@ -66,7 +67,8 @@ void TutorialApplication::createScene(void)
     paddle->addToSimulator();
     paddle2->addToSimulator();
 
-    enemy = new Enemy(mSceneMgr, sim, "ogre");
+    enemy = new Enemy(mSceneMgr, sim, "ogre" + Ogre::StringConverter::toString(numEnemies));
+    ++numEnemies;
     enemy->getRootNode()->setPosition(0, 1000, 0);
     enemy->addToSimulator();
 }
