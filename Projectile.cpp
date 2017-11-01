@@ -11,7 +11,7 @@ Projectile::Projectile(Ogre::SceneManager* scnMgr, Simulator* sim, int* s, Ogre:
   ball->setCastShadows(true);
   rootNode = scnMgr->getRootSceneNode()->createChildSceneNode();
   rootNode->attachObject(ball);
-  rootNode->scale(0.05f, 0.05f, 0.05f);
+  rootNode->scale(0.01f, 0.01f, 0.01f);
   bRadius = 5.0f;
   mass = 1;
   shape = new btSphereShape(bRadius);
@@ -30,13 +30,16 @@ void Projectile::update(float elapsedTime) {
   if (context->hit && (context->velNorm > 1.0 || context->velNorm < -1.0) 
     && (lastTime > 0.1 || (context->lastBody != context->body && lastTime > 0.05))) {
     //Handle the hit
-    Ogre::String objName = callback->ctxt.theObject->getName();
+    GameObject * collision = callback->ctxt.theObject;
+    Ogre::String objName = collision->getName();
 
     //If hit with enemy, kill self, kill enemy, play sound, update specific player's score
     if(objName.substr(0, 4) == "ogre")
     {
-      //sceneMgr->destroyEntity(objName);
-      //sceneMgr->destroySceneNode(rootNode);
+      //Play sound effect
+      //Update score
+      collision->destroyObject();
+      this->destroyObject();
     }
     //Should kill self after certain time or traveled certain distance (how to track either? collision with invisible back wall instead?)
 

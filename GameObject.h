@@ -31,13 +31,14 @@ class GameObject
 
 	public:
 		GameObject(Ogre::SceneManager* scnMgr, Simulator* sim, Ogre::String n);
-		btRigidBody* getBody(){return body;}
+		btRigidBody* getBody(void){return body;}
 		Ogre::SceneNode* getRootNode(){return rootNode;}
-		void updateTransform();
-		void addToSimulator();
+		void updateTransform(void);
+		void addToSimulator(void);
 		void setVelocity(Ogre::Real x, Ogre::Real y, Ogre::Real z);
 		virtual void update(float elapsedTime);
-		Ogre::String getName() { return name; }
+		Ogre::String getName(void) { return name; }
+		void destroyObject(void);
 };
 
 #endif

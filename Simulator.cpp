@@ -23,7 +23,15 @@ void Simulator::addObject(GameObject* o)
 
 bool Simulator::removeObject(GameObject* o)
 {
-	
+	for(int i = 0; i < objList.size(); ++i)
+	{
+		if(objList[i] == o)
+		{
+			dynamicsWorld->removeRigidBody(o->getBody());
+			objList.erase(objList.begin() + i);
+			break;
+		}
+	}
 }
 
 btAlignedObjectArray<btCollisionShape*> Simulator::getCollisionShapes()

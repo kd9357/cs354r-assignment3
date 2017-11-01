@@ -27,6 +27,9 @@ TutorialApplication::TutorialApplication(void)
     mPortNumber = 51215;
     mNetworkingStarted = false;
     numEnemies = 0;
+    numClientProjectiles = 0;
+    numServerProjectiles = 0;
+
     //Hardcoded IP number
     mIPAddress = "128.83.139.157";
 }
@@ -98,6 +101,9 @@ void TutorialApplication::createViewports(void)
 bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
 {
     static bool keyPressed = false;
+
+    //Busy check gameobjects to be deleted
+
     //Camera controls
     //static bool buttonPressed = false;
     //For now, also move paddle
@@ -146,22 +152,25 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
             netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
         }
     }
-    if(mKeyboard->isKeyDown(OIS::KC_SPACE) && !keyPressed)
+    if(mKeyboard->isKeyDown(OIS::KC_SPACE))
     {
         int temp;
         keyPressed = true;
         if(!mIsClient)
         {
-            Projectile * clientProjectile = new Projectile(mSceneMgr, sim, &temp, "clientProjectile", true);
+            Ogre::String name = "serverProjectile" + Ogre::StringConverter::toString(numServerProjectiles);
+            ++numServerProjectiles;
+            std::cout << "creating " << name << std::endl;
+            Projectile * serverProjectile = new Projectile(mSceneMgr, sim, &temp, name, true);
             std::cout << "Moving in front of ship\n";
-            clientProjectile->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
+            serverProjectile->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
                                                          paddle->getRootNode()->getPosition().y + 20,
                                                          paddle->getRootNode()->getPosition().z );
             
             std::cout << "Adding to simulator\n";
-            clientProjectile->addToSimulator();
+            serverProjectile->addToSimulator();
             std::cout << "Setting velocity\n";
-            clientProjectile->setVelocity(0, 1000, 0);
+            serverProjectile->setVelocity(0, 1000, 0);
             std::cout << "done\n";
         }
     }
@@ -229,7 +238,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     {
         sim->stepSimulation(evt.timeSinceLastFrame);
     }
-    //Ogre::Vector3 dirVec = mCamera->getPosition();
 
     //Send message
     if(mNetworkingStarted)
@@ -308,8 +316,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
     if(!processUnbufferedInput(evt))
         return false;
-    // mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
-    // paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
 
     return true;
 }

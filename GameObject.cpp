@@ -6,7 +6,7 @@
 
 GameObject::GameObject(Ogre::SceneManager* scnMgr, Simulator* sim, Ogre::String n)
 {
-	scnMgr = scnMgr;
+	sceneMgr = scnMgr;
 	simulator = sim;
 	shape = NULL;
 	motionState = NULL;
@@ -62,4 +62,11 @@ void GameObject::update(float elapsedTime)
 		lastTime = 0.0f;
 	}
 	context->hit = false;
+}
+
+void GameObject::destroyObject(void) {
+	simulator->removeObject(this);
+	rootNode->detachAllObjects();
+	sceneMgr->destroySceneNode(rootNode);
+	delete this;
 }
