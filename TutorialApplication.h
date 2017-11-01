@@ -24,6 +24,7 @@ http://www.ogre3d.org/wiki/
 #include "Paddle.h"
 #include "NetManager.h"
 #include "Enemy.h"
+#include "Projectile.h"
 
 //---------------------------------------------------------------------------
 

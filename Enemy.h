@@ -6,4 +6,6 @@ class Enemy : public GameObject
 	public:
 		Enemy(Ogre::SceneManager* scnMgr, Simulator* sim, Ogre::String n);
 		~Enemy();
+
+    void update(float elapsedTime);
 };

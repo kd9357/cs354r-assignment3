@@ -55,9 +55,10 @@ void GameObject::update(float elapsedTime)
 	simulator->getDynamicsWorld()->contactTest(body, *callback);
 	if(context->hit && (lastTime > 0.1f || (context->lastBody != context->body && lastTime > 0.05f)))
 	{
+		Ogre::String objName = callback->ctxt.theObject->getName();
 		std::cout << "collision occurred" << std::endl;
 		std::cout << "my name: " << getName() << std::endl;
-		std::cout << "collision name: " << callback->ctxt.theObject->getName() << std::endl;
+		std::cout << "collision name: " << objName << std::endl;
 		lastTime = 0.0f;
 	}
 	context->hit = false;

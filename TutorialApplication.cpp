@@ -57,16 +57,18 @@ void TutorialApplication::createScene(void)
     sim = new Simulator();
 
     //For now, it's positioning will match that of the camera
-    paddle = new Paddle(mSceneMgr, sim, 25, 25, "paddle", false);
+    paddle = new Paddle(mSceneMgr, sim, 25, 25, "paddle", false);   //client
     paddle->getRootNode()->setPosition(20, 25, 0);
 
-    paddle2 = new Paddle(mSceneMgr, sim, 25, 25, "paddle2", true);
+    paddle2 = new Paddle(mSceneMgr, sim, 25, 25, "paddle2", true);  //server
     paddle2->getRootNode()->setPosition(-20, 25, 0);
 
     paddle->addToSimulator();
     paddle2->addToSimulator();
 
     enemy = new Enemy(mSceneMgr, sim, "ogre");
+    enemy->getRootNode()->setPosition(0, 1000, 0);
+    enemy->addToSimulator();
 }
 //---------------------------------------------------------------------------
 void TutorialApplication::createCamera(void)
@@ -75,7 +77,7 @@ void TutorialApplication::createCamera(void)
     // mCamera->lookAt(Ogre::Vector3(0, 25, 0));
     mCamera->setNearClipDistance(5);
     mCamNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode");
-    mCamNode->setPosition(Ogre::Vector3(0, -100, 0));
+    mCamNode->setPosition(Ogre::Vector3(0, -30, 0));
     mCamNode->attachObject(mCamera);
     mCamNode->pitch(Ogre::Degree(90));
     mMove = 0.2;
@@ -93,6 +95,7 @@ void TutorialApplication::createViewports(void)
 //Keyboard input
 bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
 {
+    static bool keyPressed = false;
     //Camera controls
     //static bool buttonPressed = false;
     //For now, also move paddle
@@ -141,9 +144,24 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
             netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
         }
     }
-    if(mKeyboard->isKeyDown(OIS::KC_SPACE) && mNetworkingStarted)   //get networking info
+    if(mKeyboard->isKeyDown(OIS::KC_SPACE) && !keyPressed)
     {
-        std::cout << "number of clients: " << netManager.getClients() << "\n";
+        int temp;
+        keyPressed = true;
+        if(!mIsClient)
+        {
+            Projectile * clientProjectile = new Projectile(mSceneMgr, sim, &temp, "clientProjectile", true);
+            std::cout << "Moving in front of ship\n";
+            clientProjectile->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
+                                                         paddle->getRootNode()->getPosition().y + 20,
+                                                         paddle->getRootNode()->getPosition().z );
+            
+            std::cout << "Adding to simulator\n";
+            clientProjectile->addToSimulator();
+            std::cout << "Setting velocity\n";
+            clientProjectile->setVelocity(0, 1000, 0);
+            std::cout << "done\n";
+        }
     }
 
     //mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);

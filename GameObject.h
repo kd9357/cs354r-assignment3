@@ -36,7 +36,7 @@ class GameObject
 		void updateTransform();
 		void addToSimulator();
 		void setVelocity(Ogre::Real x, Ogre::Real y, Ogre::Real z);
-		void update(float elapsedTime);
+		virtual void update(float elapsedTime);
 		Ogre::String getName() { return name; }
 };
 
