@@ -160,18 +160,25 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
         {
             Ogre::String name = "serverProjectile" + Ogre::StringConverter::toString(numServerProjectiles);
             ++numServerProjectiles;
-            std::cout << "creating " << name << std::endl;
-            Projectile * serverProjectile = new Projectile(mSceneMgr, sim, &temp, name, true);
-            std::cout << "Moving in front of ship\n";
+            Projectile * serverProjectile = new Projectile(mSceneMgr, sim, &temp, name, false);
             serverProjectile->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
                                                          paddle->getRootNode()->getPosition().y + 20,
                                                          paddle->getRootNode()->getPosition().z );
-            
-            std::cout << "Adding to simulator\n";
+
             serverProjectile->addToSimulator();
-            std::cout << "Setting velocity\n";
             serverProjectile->setVelocity(0, 1000, 0);
-            std::cout << "done\n";
+        }
+        else 
+        {
+            Ogre::String name = "ClientProjectile" + Ogre::StringConverter::toString(numClientProjectiles);
+            ++numClientProjectiles;
+            Projectile * ClientProjectile = new Projectile(mSceneMgr, sim, &temp, name, true);
+            ClientProjectile->getRootNode()->setPosition(paddle2->getRootNode()->getPosition().x,
+                                                         paddle2->getRootNode()->getPosition().y + 20,
+                                                         paddle2->getRootNode()->getPosition().z );
+
+            ClientProjectile->addToSimulator();
+            ClientProjectile->setVelocity(0, 1000, 0);
         }
     }
 
