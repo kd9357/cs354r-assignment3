@@ -42,12 +42,17 @@ protected:
     virtual bool mouseMoved(const OIS::MouseEvent& me);
     // Ogre::KeyListener
     virtual bool processUnbufferedInput(const Ogre::FrameEvent& fe);
+    virtual bool keyPressed(const OIS::KeyEvent &arg);
+    virtual bool keyReleased(const OIS::KeyEvent &arg);
     // Ogre::FrameListener
     virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
     //helper functions
     void startNetworking(bool isClient);
     void stopNetworking();
+
+    void fireProjectile();
+    Ogre::String createMessage();
 
     //Simulator and Game objects
     Simulator * sim;
@@ -66,6 +71,9 @@ protected:
     Ogre::Vector3 mDirection;
     Ogre::Real mMove;
     Ogre::Real mRotate;
+
+    //keyboard Parameters
+    bool spacePressed;
 
     //Networking Parameters
     NetManager netManager;

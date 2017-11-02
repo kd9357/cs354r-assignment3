@@ -45,6 +45,15 @@ void GameObject::addToSimulator(){
 	simulator->addObject(this);
 }
 
+void GameObject::applyPhysics() {
+	simulator->addObject(this);
+}
+
+void GameObject::removePhysics()
+{
+	simulator->removeObject(this);
+}
+
 void GameObject::setVelocity(Ogre::Real x, Ogre::Real y, Ogre::Real z) {
 	body->setLinearVelocity(btVector3(x, y, z));
 }

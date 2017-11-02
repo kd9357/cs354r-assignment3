@@ -17,12 +17,23 @@ Projectile::Projectile(Ogre::SceneManager* scnMgr, Simulator* sim, int* s, Ogre:
   shape = new btSphereShape(bRadius);
   score = s;
 
-  isActive = false;
+  active = false;
+  this->isClient = isClient;
 }
 
 Projectile::~Projectile()
 {
 
+}
+
+bool Projectile::isActive()
+{
+  return active;
+}
+
+void Projectile::setActive(bool b)
+{
+  active = b;
 }
 
 //Specific game object update routine
@@ -41,12 +52,19 @@ void Projectile::update(float elapsedTime) {
       //Play sound effect
       //Update score
       collision->destroyObject();
-      this->destroyObject();
+      reset();
     }
-    //Should kill self after certain time or traveled certain distance (how to track either? collision with invisible back wall instead?)
-
-
     lastTime = 0.0f;
   }
   context->hit = false;
+}
+
+void Projectile::reset() {
+  active = false;
+  setVelocity(0, 0, 0);
+  if(!isClient)
+    getRootNode()->setPosition(25, -100, 0);
+  else
+    getRootNode()->setPosition(-25, -100, 0);
+  updateTransform();
 }

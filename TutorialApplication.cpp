@@ -27,7 +27,9 @@ TutorialApplication::TutorialApplication(void)
     mPortNumber = 51215;
     mNetworkingStarted = false;
     numEnemies = 0;
-    maxProjectiles = 5;
+    maxProjectiles = 3;
+
+    spacePressed = false;
 
 
     //Hardcoded IP number
@@ -36,6 +38,19 @@ TutorialApplication::TutorialApplication(void)
 //---------------------------------------------------------------------------
 TutorialApplication::~TutorialApplication(void)
 {
+    for(int i = 0; i < maxProjectiles; ++i)
+    {
+        if(serverProjectiles[i] != NULL)
+            delete serverProjectiles[i];
+        if(clientProjectiles[i] != NULL)
+            delete clientProjectiles[i];
+    }
+
+    // delete sim;
+    // delete paddle;
+    // delete paddle2;
+    //Delete all enemies list eventually
+    //delete enemy;
 }
 
 //---------------------------------------------------------------------------
@@ -86,8 +101,12 @@ void TutorialApplication::createScene(void)
         Projectile * cProjectile = new Projectile(mSceneMgr, sim, &temp, cName, true);
         serverProjectiles.push_back(sProjectile);
         clientProjectiles.push_back(cProjectile);
-        sProjectile->getRootNode()->setPosition(0, -100, 0);
-        cProjectile->getRootNode()->setPosition(0, -100, 0);
+        sProjectile->getRootNode()->setPosition(25, -100 * (i + 1), 0);
+        cProjectile->getRootNode()->setPosition(-25, -100 * (i + 1), 0);
+        sProjectile->addToSimulator();
+        cProjectile->addToSimulator();
+        // sProjectile->removePhysics();
+        // cProjectile->removePhysics();
     }
 }
 //---------------------------------------------------------------------------
@@ -167,45 +186,7 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
             netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
         }
     }
-    if(mKeyboard->isKeyDown(OIS::KC_SPACE))
-    {
-        int temp;
-        keyPressed = true;
-        if(!mIsClient)
-        {
-            for(int i = 0; i < maxProjectiles; ++i)
-            {
-                if(!serverProjectiles[i]->isActive)
-                {
-                    serverProjectiles[i]->isActive = true;
-                    break;
-                }
-            }
-            // Ogre::String name = "serverProjectile" + Ogre::StringConverter::toString(numServerProjectiles);
-            // ++numServerProjectiles;
-            // Projectile * serverProjectile = new Projectile(mSceneMgr, sim, &temp, name, false);
-            // serverProjectile->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
-            //                                              paddle->getRootNode()->getPosition().y + 20,
-            //                                              paddle->getRootNode()->getPosition().z );
 
-            // serverProjectile->addToSimulator();
-            // serverProjectile->setVelocity(0, 1000, 0);
-        }
-        else 
-        {
-            // Ogre::String name = "ClientProjectile" + Ogre::StringConverter::toString(numClientProjectiles);
-            // ++numClientProjectiles;
-            // Projectile * ClientProjectile = new Projectile(mSceneMgr, sim, &temp, name, true);
-            // ClientProjectile->getRootNode()->setPosition(paddle2->getRootNode()->getPosition().x,
-            //                                              paddle2->getRootNode()->getPosition().y + 20,
-            //                                              paddle2->getRootNode()->getPosition().z );
-
-            // ClientProjectile->addToSimulator();
-            // ClientProjectile->setVelocity(0, 1000, 0);
-        }
-    }
-
-    //mCamNode->translate(dirVec, Ogre::Node::TS_LOCAL);
     if(mNetworkingStarted)
     {
         if(!mIsClient)
@@ -253,6 +234,104 @@ void TutorialApplication::stopNetworking() {
     std::cout << "Networking stopped\n";
 }
 
+bool TutorialApplication::keyPressed( const OIS::KeyEvent &arg)
+{
+    if(arg.key == OIS::KC_SPACE && !spacePressed)
+    {
+        spacePressed = true;
+        fireProjectile();
+    }
+    return BaseApplication::keyPressed(arg);
+}
+
+void TutorialApplication::fireProjectile()
+{
+    int temp;
+    if(!mIsClient)
+    {
+        for(int i = 0; i < maxProjectiles; ++i)
+        {
+            if(!serverProjectiles[i]->isActive())
+            {
+                std::cout << "Launching server projectile " << i << std::endl;
+                serverProjectiles[i]->setActive(true);
+                serverProjectiles[i]->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
+                                                                 paddle->getRootNode()->getPosition().y + 20,
+                                                                 paddle->getRootNode()->getPosition().z);
+                serverProjectiles[i]->setVelocity(0, 1000, 0);
+                serverProjectiles[i]->updateTransform();
+                break;
+            }
+        }
+    }
+    else 
+    {
+        for(int i = 0; i < maxProjectiles; ++i)
+        {
+            if(!clientProjectiles[i]->isActive())
+            {
+                std::cout << "Launching client projectile " << i << std::endl;
+                clientProjectiles[i]->setActive(true);
+                clientProjectiles[i]->getRootNode()->setPosition(paddle2->getRootNode()->getPosition().x,
+                                                                 paddle2->getRootNode()->getPosition().y + 20,
+                                                                 paddle2->getRootNode()->getPosition().z);
+                clientProjectiles[i]->setVelocity(0, 1000, 0);
+                serverProjectiles[i]->updateTransform();
+                break;
+            }
+        }
+    }
+}
+
+bool TutorialApplication::keyReleased( const OIS::KeyEvent &arg )
+{
+    if(arg.key == OIS::KC_SPACE) {
+        spacePressed = false;
+    }
+    return BaseApplication::keyReleased(arg);
+}
+
+Ogre::String TutorialApplication::createMessage()
+{
+    Ogre::String message = "";  //Do we need to send both? don't think so actually
+    message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
+    message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().y) + " ";
+
+    message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().x) + " ";
+    message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().y) + " ";
+
+    //Check status of projectiles
+    if(!mIsClient)  //if server, only send server projectile data
+    {
+        for(int i = 0; i < maxProjectiles; ++i)
+        {
+            //Check if projectile out of bounds, if yes then deactivate
+            if(serverProjectiles[i]->getRootNode()->getPosition().y > 1500)
+            {
+                serverProjectiles[i]->reset();
+            }
+            message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().x) + " ";
+            message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().y) + " ";
+            message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().z) + " ";
+        }
+    }
+    else //otherwise only send client projectile data
+    {
+        for(int i = 0; i < maxProjectiles; ++i)
+        {
+            //Check if projectile out of bounds, if yes then deactivate
+            if(clientProjectiles[i]->getRootNode()->getPosition().y > 1500)
+            {
+                clientProjectiles[i]->reset();
+            }
+            message += Ogre::StringConverter::toString(clientProjectiles[i]->getRootNode()->getPosition().x) + " ";
+            message += Ogre::StringConverter::toString(clientProjectiles[i]->getRootNode()->getPosition().y) + " ";
+            message += Ogre::StringConverter::toString(clientProjectiles[i]->getRootNode()->getPosition().z) + " ";
+        }
+    }
+    return message;
+}
+
 //---------------------------------------------------------------------------
 bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
@@ -265,21 +344,12 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     mMouse->capture();
 
     if(sim)
-    {
         sim->stepSimulation(evt.timeSinceLastFrame);
-    }
 
     //Send message
     if(mNetworkingStarted)
     {
-        Ogre::String message = "";
-        message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
-        message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().y) + " ";
-
-        message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().x) + " ";
-        message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().y) + " ";
-
-
+        Ogre::String message = createMessage();
         if(mIsClient)
         {
             netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
@@ -317,7 +387,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 paddle2->getRootNode()->setPosition(x2, y2, z2);
             }
         }
-        else /*if(netManager.getClients() > 0)*/
+        else
         {
             if(netManager.pollForActivity(1))
             {
