@@ -33,7 +33,7 @@ TutorialApplication::TutorialApplication(void)
 
 
     //Hardcoded IP number
-    mIPAddress = "128.83.120.84";
+    mIPAddress = "128.83.120.90";
 
     SoundManager::initSoundManager();
 }
@@ -126,7 +126,7 @@ void TutorialApplication::createCamera(void)
     mCamNode->setPosition(Ogre::Vector3(0, -30, 0));
     mCamNode->attachObject(mCamera);
     mCamNode->pitch(Ogre::Degree(90));
-    mMove = 0.2;
+    mMove = 0.05;
     mRotate = 0.05;
 }
 //---------------------------------------------------------------------------
@@ -326,6 +326,7 @@ Ogre::String TutorialApplication::createMessage()
     {
         message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
         message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().y) + " ";
+        message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().z) + " ";
         //Check projectile status
         for(int i = 0; i < maxProjectiles; ++i)
         {
@@ -347,6 +348,7 @@ Ogre::String TutorialApplication::createMessage()
     {
         message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().x) + " ";
         message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().y) + " ";
+        message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().z) + " ";
         for(int i = 0; i < maxProjectiles; ++i)
         {
             //Check if projectile out of bounds, if yes then deactivate
@@ -411,7 +413,8 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 x = atof(s.c_str());
                 stream >> s;
                 y = atof(s.c_str());
-                z = paddle->getRootNode()->getPosition().z;
+                stream >> s;
+                z = atof(s.c_str());
                 paddle->getRootNode()->setPosition(x, y, z);
 
                 //Update server projectiles
@@ -435,15 +438,18 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
             {
                 std::cout << "received message from client" << std::endl;
 
-                std::istringstream stream(netManager.udpServerData[0].output);
+                std::istringstream stream(netManager.udpClientData[0]->output);
                 std::string s;
 
-                //Update server ship
+                //Update client ship
                 stream >> s;
                 x = atof(s.c_str());
+                std::cout << "x: " << x << std::endl;
                 stream >> s;
                 y = atof(s.c_str());
-                z = paddle2->getRootNode()->getPosition().z;
+                std::cout << "y: " << y << std::endl;
+                stream >> s;
+                z = atof(s.c_str());
                 paddle2->getRootNode()->setPosition(x, y, z);
 
                 //Update server projectiles
