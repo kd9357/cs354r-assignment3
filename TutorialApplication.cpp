@@ -33,7 +33,9 @@ TutorialApplication::TutorialApplication(void)
 
 
     //Hardcoded IP number
-    mIPAddress = "128.83.139.157";
+    mIPAddress = "128.83.120.84";
+
+    SoundManager::initSoundManager();
 }
 //---------------------------------------------------------------------------
 TutorialApplication::~TutorialApplication(void)
@@ -90,7 +92,6 @@ void TutorialApplication::createScene(void)
     enemy->getRootNode()->setPosition(0, 1000, 0);
     enemy->addToSimulator();
 
-
     //Create projectiles
     int temp;
     for(int i = 0; i < maxProjectiles; ++i)
@@ -108,6 +109,7 @@ void TutorialApplication::createScene(void)
         // sProjectile->removePhysics();
         // cProjectile->removePhysics();
     }
+    SoundManager::playMusic();
 }
 //---------------------------------------------------------------------------
 void TutorialApplication::createCamera(void)
@@ -281,6 +283,8 @@ void TutorialApplication::fireProjectile()
             }
         }
     }
+
+    SoundManager::playSoundEffect("fire");
 }
 
 bool TutorialApplication::keyReleased( const OIS::KeyEvent &arg )

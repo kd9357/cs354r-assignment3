@@ -25,6 +25,7 @@ http://www.ogre3d.org/wiki/
 #include "NetManager.h"
 #include "Enemy.h"
 #include "Projectile.h"
+#include "SoundManager.h"
 
 //---------------------------------------------------------------------------
 
@@ -82,6 +83,9 @@ protected:
     char* mIPAddress;
     bool mIsClient;
     bool mMultiplayer;
+
+    //Sound Parameters
+    SoundManager soundManager;
 };
 
 //---------------------------------------------------------------------------
