@@ -29,6 +29,10 @@ void GameObject::updateTransform(){
 	if (motionState) motionState -> updateTransform(tr);
 }
 
+void GameObject::updateWorldTransform(){
+	body->setWorldTransform(tr);
+}
+
 void GameObject::addToSimulator(){
 	updateTransform();
 	motionState = new OgreMotionState(tr, rootNode);
@@ -43,15 +47,6 @@ void GameObject::addToSimulator(){
 	callback = new BulletContactCallback(*body, *context);
 
 	simulator->addObject(this);
-}
-
-void GameObject::applyPhysics() {
-	simulator->addObject(this);
-}
-
-void GameObject::removePhysics()
-{
-	simulator->removeObject(this);
 }
 
 void GameObject::setVelocity(Ogre::Real x, Ogre::Real y, Ogre::Real z) {

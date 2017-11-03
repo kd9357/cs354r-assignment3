@@ -12,8 +12,8 @@ Projectile::Projectile(Ogre::SceneManager* scnMgr, Simulator* sim, int* s, Ogre:
   rootNode = scnMgr->getRootSceneNode()->createChildSceneNode();
   rootNode->attachObject(ball);
   rootNode->scale(0.01f, 0.01f, 0.01f);
-  bRadius = 5.0f;
-  mass = 1;
+  bRadius = 1.0f;
+  mass = 10;
   shape = new btSphereShape(bRadius);
   score = s;
 

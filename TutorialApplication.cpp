@@ -87,6 +87,9 @@ void TutorialApplication::createScene(void)
     paddle->addToSimulator();
     paddle2->addToSimulator();
 
+    paddle->updateTransform();
+    paddle2->updateTransform();
+
     enemy = new Enemy(mSceneMgr, sim, "ogre" + Ogre::StringConverter::toString(numEnemies));
     ++numEnemies;
     enemy->getRootNode()->setPosition(0, 1000, 0);
@@ -94,6 +97,10 @@ void TutorialApplication::createScene(void)
 
     //Create projectiles
     int temp;
+    proj = new Projectile(mSceneMgr, sim, &temp, "projectile", false);
+    proj->getRootNode()->setPosition(0, -100, 0);
+    proj->addToSimulator();
+    proj->updateTransform();
     for(int i = 0; i < maxProjectiles; ++i)
     {
         Ogre::String sName = "serverProjectile" + Ogre::StringConverter::toString(i);
@@ -106,8 +113,6 @@ void TutorialApplication::createScene(void)
         cProjectile->getRootNode()->setPosition(-25, -100 * (i + 1), 0);
         sProjectile->addToSimulator();
         cProjectile->addToSimulator();
-        // sProjectile->removePhysics();
-        // cProjectile->removePhysics();
     }
     SoundManager::playMusic();
 }
@@ -192,9 +197,15 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
     if(mNetworkingStarted)
     {
         if(!mIsClient)
+        {
             paddle->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
+            paddle->updateTransform();
+        }
         else
+        {
             paddle2->getRootNode()->translate(dirVec, Ogre::Node::TS_LOCAL);
+            paddle2->updateTransform();
+        }
     }
     return true;
 }
@@ -255,13 +266,17 @@ void TutorialApplication::fireProjectile()
         {
             if(!serverProjectiles[i]->isActive())
             {
-                std::cout << "Launching server projectile " << i << std::endl;
+                //std::cout << "Launching server projectile " << i << std::endl;
                 serverProjectiles[i]->setActive(true);
                 serverProjectiles[i]->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
                                                                  paddle->getRootNode()->getPosition().y + 20,
                                                                  paddle->getRootNode()->getPosition().z);
+
+                // serverProjectiles[i]->addToSimulator();
                 serverProjectiles[i]->setVelocity(0, 1000, 0);
                 serverProjectiles[i]->updateTransform();
+                serverProjectiles[i]->updateWorldTransform();
+                SoundManager::playSoundEffect("fire");
                 break;
             }
         }
@@ -272,19 +287,22 @@ void TutorialApplication::fireProjectile()
         {
             if(!clientProjectiles[i]->isActive())
             {
-                std::cout << "Launching client projectile " << i << std::endl;
+                //std::cout << "Launching client projectile " << i << std::endl;
                 clientProjectiles[i]->setActive(true);
                 clientProjectiles[i]->getRootNode()->setPosition(paddle2->getRootNode()->getPosition().x,
                                                                  paddle2->getRootNode()->getPosition().y + 20,
                                                                  paddle2->getRootNode()->getPosition().z);
+                // clientProjectiles[i]->addToSimulator();
                 clientProjectiles[i]->setVelocity(0, 1000, 0);
-                serverProjectiles[i]->updateTransform();
+                clientProjectiles[i]->updateTransform();
+                clientProjectiles[i]->updateWorldTransform();
+                SoundManager::playSoundEffect("fire");
                 break;
             }
         }
     }
 
-    SoundManager::playSoundEffect("fire");
+    
 }
 
 bool TutorialApplication::keyReleased( const OIS::KeyEvent &arg )
@@ -310,9 +328,13 @@ Ogre::String TutorialApplication::createMessage()
         for(int i = 0; i < maxProjectiles; ++i)
         {
             //Check if projectile out of bounds, if yes then deactivate
-            if(serverProjectiles[i]->getRootNode()->getPosition().y > 1500)
+            if(serverProjectiles[i]->getRootNode()->getPosition().y > 1500 && serverProjectiles[i]->isActive())
             {
-                serverProjectiles[i]->reset();
+                 serverProjectiles[i]->getRootNode()->setPosition(0, -100, 0);
+                 serverProjectiles[i]->setVelocity(0, 0, 0);
+                 serverProjectiles[i]->setActive(false);
+                 serverProjectiles[i]->updateTransform();
+                 serverProjectiles[i]->updateWorldTransform();
             }
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().x) + " ";
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().y) + " ";
@@ -324,9 +346,13 @@ Ogre::String TutorialApplication::createMessage()
         for(int i = 0; i < maxProjectiles; ++i)
         {
             //Check if projectile out of bounds, if yes then deactivate
-            if(clientProjectiles[i]->getRootNode()->getPosition().y > 1500)
+            if(clientProjectiles[i]->getRootNode()->getPosition().y > 1500 && clientProjectiles[i]->isActive())
             {
-                clientProjectiles[i]->reset();
+                 clientProjectiles[i]->getRootNode()->setPosition(0, -100, 0);
+                 clientProjectiles[i]->setVelocity(0, 0, 0);
+                 clientProjectiles[i]->setActive(false);
+                 clientProjectiles[i]->updateTransform();
+                 clientProjectiles[i]->updateWorldTransform();
             }
             message += Ogre::StringConverter::toString(clientProjectiles[i]->getRootNode()->getPosition().x) + " ";
             message += Ogre::StringConverter::toString(clientProjectiles[i]->getRootNode()->getPosition().y) + " ";

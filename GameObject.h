@@ -34,9 +34,8 @@ class GameObject
 		btRigidBody* getBody(void){return body;}
 		Ogre::SceneNode* getRootNode(){return rootNode;}
 		void updateTransform(void);
+		void updateWorldTransform(void);
 		void addToSimulator(void);
-		void applyPhysics(void);
-		void removePhysics(void);
 		void setVelocity(Ogre::Real x, Ogre::Real y, Ogre::Real z);
 		virtual void update(float elapsedTime);
 		Ogre::String getName(void) { return name; }

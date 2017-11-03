@@ -20,7 +20,8 @@ void Enemy::update(float elapsedTime)
   if(context->hit && (lastTime > 0.1f || (context->lastBody != context->body && lastTime > 0.05f)))
   {
     Ogre::String objName = callback->ctxt.theObject->getName();
-    std::cout << getName() << " collided with " << objName << std::endl;
+    // std::cout << getName() << " collided with " << objName << std::endl;
+
     lastTime = 0.0f;
   }
   context->hit = false;

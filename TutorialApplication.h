@@ -61,6 +61,7 @@ protected:
     Paddle * paddle;
     Paddle * paddle2;
     Enemy * enemy;
+    Projectile * proj;
     int numEnemies;
     int maxProjectiles;
     
