@@ -316,15 +316,17 @@ bool TutorialApplication::keyReleased( const OIS::KeyEvent &arg )
 Ogre::String TutorialApplication::createMessage()
 {
     Ogre::String message = "";  //Do we need to send both? don't think so actually
-    message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
-    message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().y) + " ";
+    // message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
+    // message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().y) + " ";
 
-    message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().x) + " ";
-    message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().y) + " ";
+    // message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().x) + " ";
+    // message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().y) + " ";
 
-    //Check status of projectiles
-    if(!mIsClient)  //if server, only send server projectile data
+    if(!mIsClient) 
     {
+        message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
+        message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().y) + " ";
+        //Check projectile status
         for(int i = 0; i < maxProjectiles; ++i)
         {
             //Check if projectile out of bounds, if yes then deactivate
@@ -343,6 +345,8 @@ Ogre::String TutorialApplication::createMessage()
     }
     else //otherwise only send client projectile data
     {
+        message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().x) + " ";
+        message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().y) + " ";
         for(int i = 0; i < maxProjectiles; ++i)
         {
             //Check if projectile out of bounds, if yes then deactivate
@@ -365,6 +369,7 @@ Ogre::String TutorialApplication::createMessage()
 //---------------------------------------------------------------------------
 bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
+    float x, y, z;
     if(mWindow->isClosed())
 	   return false;
     if(mShutDown)
@@ -396,25 +401,32 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
         {
             if(netManager.pollForActivity(1))
             {
-                std::cout << "received message from server" << std::endl;
+                //std::cout << "received message from server" << std::endl;
                
                 std::istringstream stream(netManager.udpServerData[0].output);
                 std::string s;
-                stream >> s;
-                std::cout << "message from server: " << s << std::endl;
-                float x = atof(s.c_str());
-                stream >> s;
-                float y = atof(s.c_str());
-                float z = paddle->getRootNode()->getPosition().z;
-                
-                stream >> s;
-                float x2 = atof(s.c_str());
-                stream >> s;
-                float y2 = atof(s.c_str());
-                float z2 = paddle2->getRootNode()->getPosition().z;
 
+                //Update server ship
+                stream >> s;
+                x = atof(s.c_str());
+                stream >> s;
+                y = atof(s.c_str());
+                z = paddle->getRootNode()->getPosition().z;
                 paddle->getRootNode()->setPosition(x, y, z);
-                paddle2->getRootNode()->setPosition(x2, y2, z2);
+
+                //Update server projectiles
+                for(int i = 0; i < maxProjectiles; ++i)
+                {
+                    stream >> s;
+                    x = atof(s.c_str());
+                    stream >> s;
+                    y = atof(s.c_str());
+                    stream >> s;
+                    z = atof(s.c_str());
+                    serverProjectiles[i]->getRootNode()->setPosition(x, y, z);
+                    serverProjectiles[i]->updateTransform();
+                    serverProjectiles[i]->updateWorldTransform();
+                }
             }
         }
         else
@@ -423,23 +435,30 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
             {
                 std::cout << "received message from client" << std::endl;
 
-                std::istringstream stream(netManager.udpClientData[0]->output);
+                std::istringstream stream(netManager.udpServerData[0].output);
                 std::string s;
-                stream >> s;
-                std::cout << "message from client: " << s << std::endl;
-                float x = atof(s.c_str());
-                stream >> s;
-                float y = atof(s.c_str());
-                float z = paddle->getRootNode()->getPosition().z;
-                
-                stream >> s;
-                float x2 = atof(s.c_str());
-                stream >> s;
-                float y2 = atof(s.c_str());
-                float z2 = paddle2->getRootNode()->getPosition().z;
 
-                paddle->getRootNode()->setPosition(x, y, z);
-                paddle2->getRootNode()->setPosition(x2, y2, z2);
+                //Update server ship
+                stream >> s;
+                x = atof(s.c_str());
+                stream >> s;
+                y = atof(s.c_str());
+                z = paddle2->getRootNode()->getPosition().z;
+                paddle2->getRootNode()->setPosition(x, y, z);
+
+                //Update server projectiles
+                for(int i = 0; i < maxProjectiles; ++i)
+                {
+                    stream >> s;
+                    x = atof(s.c_str());
+                    stream >> s;
+                    y = atof(s.c_str());
+                    stream >> s;
+                    z = atof(s.c_str());
+                    clientProjectiles[i]->getRootNode()->setPosition(x, y, z);
+                    clientProjectiles[i]->updateTransform();
+                    clientProjectiles[i]->updateWorldTransform();
+                }
             }
         }
     }
