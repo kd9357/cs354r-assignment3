@@ -26,8 +26,6 @@ void GUIManager::createMenus(){
     guiRoot->addChild(settings);
 
     //Main Menu buttons
-    CEGUI::Window *singleplayerBtn = guiRoot->getChildRecursive("singleplayerBtn");
-    singleplayerBtn->setDisabled(true);
 
     CEGUI::Window *player1 = guiRoot->getChildRecursive("player1");
     player1->hide();

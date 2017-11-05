@@ -57,6 +57,7 @@ protected:
     void host(void);
     void join(void);
     void start(void);
+    void startSinglePlayer(void);
     void clientReady(void);
 
     //helper functions
@@ -64,7 +65,9 @@ protected:
     void stopNetworking();
 
     void fireProjectile();
-    Ogre::String createMessage(float time);
+    Ogre::String createMessage();
+    void recycleProjectiles();
+    void recycleEnemies(float time);
 
     bool mGameOver;
     //Simulator and Game objects
