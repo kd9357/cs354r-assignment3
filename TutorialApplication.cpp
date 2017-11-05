@@ -517,7 +517,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 if(s.compare("client_ready") == 0){
                     CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p2ready"));
                     p2ready->setSelected(true);
-                    CEGUI::Window *start = guiRoot->getChildRecursive("start");
+                    CEGUI::Window *start = gui->guiRoot->getChildRecursive("start");
                     start->setDisabled(false);
 
                 }
