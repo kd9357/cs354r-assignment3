@@ -311,7 +311,6 @@ void TutorialApplication::host(){
 
 void TutorialApplication::join(){
     CEGUI::Window *hostname = gui->guiRoot->getChildRecursive("hostname");
-    CEGUI::Window *p1ready = gui->guiRoot->getChildRecursive("p1ready");
     CEGUI::Window *start = gui->guiRoot->getChildRecursive("start");
     CEGUI::Window *serverhostname = gui->guiRoot->getChildRecursive("serverhostname");
     CEGUI::Window *host = gui->guiRoot->getChildRecursive("host");
@@ -324,7 +323,6 @@ void TutorialApplication::join(){
 
     mIPAddress = hostname->getText().c_str();
     host->setDisabled(true);
-    p1ready->setDisabled(true);
     start->setDisabled(true);
 
     startNetworking(true);

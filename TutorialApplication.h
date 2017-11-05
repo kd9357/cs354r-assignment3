@@ -58,7 +58,6 @@ protected:
     void join(void);
     void start(void);
     void clientReady(void);
-    void serverReady(void);
 
     //helper functions
     void startNetworking(bool isClient);
