@@ -26,6 +26,7 @@ http://www.ogre3d.org/wiki/
 #include "Enemy.h"
 #include "Projectile.h"
 #include "SoundManager.h"
+#include "GUIManager.h"
 
 //---------------------------------------------------------------------------
 
@@ -41,12 +42,22 @@ protected:
     virtual void createViewports(void);
     // OIS::MouseListener
     virtual bool mouseMoved(const OIS::MouseEvent& me);
+    virtual bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+    virtual bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
     // Ogre::KeyListener
     virtual bool processUnbufferedInput(const Ogre::FrameEvent& fe);
     virtual bool keyPressed(const OIS::KeyEvent &arg);
     virtual bool keyReleased(const OIS::KeyEvent &arg);
     // Ogre::FrameListener
     virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
+
+    //Button handlers
+    void registerEvents(void);
+    void quit(void);
+    void host(void);
+    void join(void);
+    void start(void);
+    void clientReady(void);
 
     //helper functions
     void startNetworking(bool isClient);
@@ -58,6 +69,7 @@ protected:
     bool mGameOver;
     //Simulator and Game objects
     Simulator * sim;
+    GUIManager * gui;
     Ball * ball;
     Paddle * paddle;
     Paddle * paddle2;
@@ -87,9 +99,10 @@ protected:
     NetManager netManager;
     bool mNetworkingStarted;
     int mPortNumber;
-    char* mIPAddress;
+    const char* mIPAddress;
     bool mIsClient;
     bool mMultiplayer;
+    bool gameStarted;
 
     //Sound Parameters
     SoundManager soundManager;

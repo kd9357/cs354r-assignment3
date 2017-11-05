@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="DefaultWindow" name="DefaultWindow" >
+        <Property name="Area" value="{{0,1},{0,1},{1,0},{1,0}}" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Window type="Vanilla/FrameWindow" name="FrameWindow" >
+            <Property name="Area" value="{{0,207},{0,107},{0.3,-4},{0.3,107}}" />
+            <AutoWindow namePath="__auto_titlebar__" >
+                <Window type="Vanilla/Titlebar" name="Titlebar" >
+                    <Property name="Area" value="{{0,0},{0,0},{0,174},{0,32}}" />
+                    <Property name="Text" value="Settings" />
+                    <Property name="AlwaysOnTop" value="true" />
+                </Window>
+            </AutoWindow>
+            <Window type="Vanilla/Label" name="Label" >
+                <Property name="Area" value="{{0,-3},{0,6},{0,125},{0,38}}" />
+                <Property name="Text" value="Sound Effects" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Label" name="Label2" >
+                <Property name="Area" value="{{0,-3},{0,42},{0,125},{0,74}}" />
+                <Property name="Text" value="Music" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Checkbox" name="Checkbox" >
+                <Property name="Area" value="{{0,126},{0,6},{0,166},{0,38}}" />
+            </Window>
+            <Window type="Vanilla/Checkbox" name="Checkbox2" >
+                <Property name="Area" value="{{0,126},{0,42},{0,165},{0,74}}" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

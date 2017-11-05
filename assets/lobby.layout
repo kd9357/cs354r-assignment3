@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="DefaultWindow" name="DefaultWindow" >
+        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Window type="Vanilla/FrameWindow" name="FrameWindow" >
+            <Property name="Area" value="{{0,296},{0,124},{0.3,315},{0.3,203}}" />
+            <AutoWindow namePath="__auto_titlebar__" >
+                <Window type="Vanilla/Titlebar" name="Titlebar" >
+                    <Property name="Area" value="{{0,0},{0,0},{0,400},{0,32}}" />
+                    <Property name="Text" value="Lobby" />
+                    <Property name="AlwaysOnTop" value="true" />
+                </Window>
+            </AutoWindow>
+            <Window type="Vanilla/Button" name="Button" >
+                <Property name="Area" value="{{0,280},{0,20},{0,376},{0,52}}" />
+                <Property name="Text" value="Host Game" />
+            </Window>
+            <Window type="Vanilla/Button" name="Button2" >
+                <Property name="Area" value="{{0,280},{0,60},{0,376},{0,92}}" />
+                <Property name="Text" value="Join Game" />
+            </Window>
+            <Window type="Vanilla/Editbox" name="Editbox" >
+                <Property name="Area" value="{{0,20},{0,60},{0,276},{0,92}}" />
+                <Property name="Text" value="Enter IP Address.." />
+                <Property name="TooltipText" value="Enter IP Address to join" />
+            </Window>
+            <Window type="Vanilla/Label" name="Label" >
+                <Property name="Area" value="{{0,20},{0,20},{0,276},{0,52}}" />
+                <Property name="Text" value="Your IP Address is: " />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Label" name="Label2" >
+                <Property name="Area" value="{{0,20},{0,100},{0,148},{0,132}}" />
+                <Property name="Text" value="Joined Players" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Label" name="Label3" >
+                <Property name="Area" value="{{0,20},{0,140},{0,148},{0,172}}" />
+                <Property name="Text" value="Player 1" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Label" name="Label4" >
+                <Property name="Area" value="{{0,20},{0,180},{0,148},{0,212}}" />
+                <Property name="Text" value="Player 2" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Checkbox" name="Checkbox" >
+                <Property name="Area" value="{{0,305},{0,140},{0,325},{0,170}}" />
+            </Window>
+            <Window type="Vanilla/Label" name="Label5" >
+                <Property name="Area" value="{{0,250},{0,100},{0,378},{0,132}}" />
+                <Property name="Text" value="Ready" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Checkbox" name="Checkbox2" >
+                <Property name="Area" value="{{0,305},{0,180},{0,325},{0,210}}" />
+            </Window>
+            <Window type="Vanilla/Button" name="Button3" >
+                <Property name="Area" value="{{0,267},{0,220},{0,363},{0,252}}" />
+                <Property name="Text" value="Start Game" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>
