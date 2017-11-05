@@ -684,7 +684,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     if(!processUnbufferedInput(evt))
         return false;
 
-    //std::cout << "Game Over!" << std::endl;
+    std::cout << "score: " << GameObject::score << std::endl;
     return true;
 }
 

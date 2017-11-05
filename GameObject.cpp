@@ -4,6 +4,8 @@
 #include "Simulator.h"
 #include <iostream>
 
+int GameObject::score = 0;
+
 GameObject::GameObject(Ogre::SceneManager* scnMgr, Simulator* sim, Ogre::String n)
 {
 	sceneMgr = scnMgr;

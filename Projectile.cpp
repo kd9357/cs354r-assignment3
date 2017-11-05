@@ -53,7 +53,8 @@ void Projectile::update(float elapsedTime) {
     {
       //Play sound effect
       //Update score
-
+      GameObject::score += 10;
+      //std::cout << "score: " << GameObject::score << std::endl;
       reset();
       collision->reset();
     }
