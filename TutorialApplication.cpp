@@ -441,7 +441,8 @@ void TutorialApplication::recycleEnemies(float time)
 void TutorialApplication::gameReset()
 {
     paddle->getRootNode()->setPosition(20, 25, 0);
-    paddle2->getRootNode()->setPosition(-20, 25, 0);
+    if(mMultiplayer)
+        paddle2->getRootNode()->setPosition(-20, 25, 0);
 
     int size = serverProjectiles.size();
     for(int i = 0; i < size; ++i)
@@ -456,6 +457,7 @@ void TutorialApplication::gameReset()
     }
     mGameOver = false;
     gameStarted = true;
+    GameObject::score = 0;
 }
 
 void TutorialApplication::quit(){
@@ -491,6 +493,7 @@ Ogre::String TutorialApplication::createMessage()
             message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().y) + " ";
             message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().z) + " ";
         }
+        message += Ogre::StringConverter::toString(GameObject::score) + " ";
     }
     else //otherwise only send client projectile data
     {
@@ -529,7 +532,10 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     mMouse->capture();
 
     if(mGameOver)
+    {
         gameReset();
+        return true;
+    }
 
     if(sim && gameStarted)
         sim->stepSimulation(evt.timeSinceLastFrame);
@@ -645,6 +651,9 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                         enemies[i]->updateTransform();
                         enemies[i]->updateWorldTransform();
                     }
+                    stream >> s;
+                    int score = atoi(s.c_str());
+                    GameObject::score = score;
                 }
             }
             else
