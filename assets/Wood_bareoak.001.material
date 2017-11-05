@@ -1,0 +1,36 @@
+// Wood_bareoak.001 genrated by blender2ogre 0.6.0
+
+material Wood_bareoak.001 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass Wood_bareoak.001
+        {
+            ambient 0.9353383779525757 0.7930303812026978 0.46721214056015015 1.0
+            diffuse 0.7523754564417118 0.6379045371105008 0.37582008372041287 1.0
+            specular 0.009999999776482582 0.009999999776482582 0.009999999776482582 1.0 8.5
+            emissive 0.0 0.0 0.0 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            mesh_exporter <bpy_struct, MaterialProperties("")>
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+        }
+    }
+}

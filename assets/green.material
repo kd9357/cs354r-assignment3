@@ -1,0 +1,13 @@
+material Examples/Green
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture green.png
+			}
+		}
+	}
+}

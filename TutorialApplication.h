@@ -20,10 +20,12 @@ http://www.ogre3d.org/wiki/
 
 #include "BaseApplication.h"
 #include "Simulator.h"
-#include "PlayingField.h"
 #include "Ball.h"
 #include "Paddle.h"
-
+#include "NetManager.h"
+#include "Enemy.h"
+#include "Projectile.h"
+#include "SoundManager.h"
 
 //---------------------------------------------------------------------------
 
@@ -41,19 +43,56 @@ protected:
     virtual bool mouseMoved(const OIS::MouseEvent& me);
     // Ogre::KeyListener
     virtual bool processUnbufferedInput(const Ogre::FrameEvent& fe);
+    virtual bool keyPressed(const OIS::KeyEvent &arg);
+    virtual bool keyReleased(const OIS::KeyEvent &arg);
     // Ogre::FrameListener
     virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
+    //helper functions
+    void startNetworking(bool isClient);
+    void stopNetworking();
+
+    void fireProjectile();
+    Ogre::String createMessage(float time);
+
+    bool mGameOver;
     //Simulator and Game objects
     Simulator * sim;
-    PlayingField * field;
     Ball * ball;
     Paddle * paddle;
+    Paddle * paddle2;
+    Enemy * enemy;
+    Projectile * proj;
+    int maxEnemies;
+    int maxProjectiles;
+    float timer;
+    float maxTime;
+    
+    std::vector<Projectile*> serverProjectiles;
+    std::vector<Projectile*> clientProjectiles;
+
+    //Enemies
+    std::vector<Enemy*> enemies;
+
     //Camera Parameters
     Ogre::SceneNode * mCamNode;
     Ogre::Vector3 mDirection;
     Ogre::Real mMove;
     Ogre::Real mRotate;
+
+    //keyboard Parameters
+    bool spacePressed;
+
+    //Networking Parameters
+    NetManager netManager;
+    bool mNetworkingStarted;
+    int mPortNumber;
+    char* mIPAddress;
+    bool mIsClient;
+    bool mMultiplayer;
+
+    //Sound Parameters
+    SoundManager soundManager;
 };
 
 //---------------------------------------------------------------------------

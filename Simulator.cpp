@@ -12,13 +12,26 @@ Simulator::Simulator()
 												solver,
 												collisionConfiguration);
   // dynamicsWorld->setGravity(btVector3(0.0, -9.8, 0.0));
-  dynamicsWorld->setGravity(btVector3(0.0, -300, 0.0));
+  dynamicsWorld->setGravity(btVector3(0.0, -50, 0.0));
 }
 
 void Simulator::addObject(GameObject* o)
 {
 	objList.push_back(o);
 	dynamicsWorld->addRigidBody(o->getBody());
+}
+
+bool Simulator::removeObject(GameObject* o)
+{
+	for(int i = 0; i < objList.size(); ++i)
+	{
+		if(objList[i] == o)
+		{
+			dynamicsWorld->removeRigidBody(o->getBody());
+			objList.erase(objList.begin() + i);
+			break;
+		}
+	}
 }
 
 btAlignedObjectArray<btCollisionShape*> Simulator::getCollisionShapes()
