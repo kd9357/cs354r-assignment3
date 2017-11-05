@@ -30,6 +30,7 @@ class GameObject
 		float lastTime;
 
 	public:
+		static int score;
 		GameObject(Ogre::SceneManager* scnMgr, Simulator* sim, Ogre::String n);
 		btRigidBody* getBody(void){return body;}
 		Ogre::SceneNode* getRootNode(){return rootNode;}

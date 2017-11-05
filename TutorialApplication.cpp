@@ -27,6 +27,7 @@ TutorialApplication::TutorialApplication(void)
     mMultiplayer = false;
     mPortNumber = 51215;
     mNetworkingStarted = false;
+    mIsClient = false;
     maxProjectiles = 3;
     maxEnemies = 8;
     timer = 0;
@@ -168,7 +169,7 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
     if(mKeyboard->isKeyDown(OIS::KC_D) && gameStarted)
         dirVec.x += mMove;
 
-    if(mNetworkingStarted && gameStarted)
+    if(gameStarted)
     {
         if(!mIsClient)
         {
@@ -195,12 +196,10 @@ void TutorialApplication::startNetworking(bool isClient) {
         netManager.addNetworkInfo(PROTOCOL_UDP, NULL, mPortNumber);
         netManager.startServer();
         netManager.acceptConnections();
-        std::cout << "Started Server\n";
     }
     else {
         netManager.addNetworkInfo(PROTOCOL_UDP, mIPAddress, mPortNumber);
         netManager.startClient();
-        std::cout << "Started Client\n";
     }
 }
 
@@ -208,7 +207,6 @@ void TutorialApplication::startNetworking(bool isClient) {
 void TutorialApplication::stopNetworking() {
     netManager.close();
     mNetworkingStarted = false;
-    std::cout << "Networking stopped\n";
 }
 
 CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)
@@ -295,6 +293,10 @@ void TutorialApplication::registerEvents(){
 
     CEGUI::Window *MToggle = gui->settings->getChildRecursive("MToggle");
     MToggle->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&TutorialApplication::pauseMusic, this));
+    
+    CEGUI::Window *singlePlayer = gui->guiRoot->getChildRecursive("singleplayerBtn");
+    singlePlayer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::startSinglePlayer, this));
+
 }
 
 void TutorialApplication::clientReady(){
@@ -303,6 +305,7 @@ void TutorialApplication::clientReady(){
         netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
     }
 }
+
 void TutorialApplication::start(){
     CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->lobby->getChildRecursive("p2ready"));
     if(!mIsClient && p2ready->isSelected()){
@@ -311,6 +314,15 @@ void TutorialApplication::start(){
         gameStarted = true;
         gui->showScore();
     }
+}
+
+void TutorialApplication::startSinglePlayer()
+{
+    gameStarted = true;
+    mMultiplayer = false;
+    mNetworkingStarted = false;
+    gui->guiRoot->hide();
+    paddle2->getRootNode()->setPosition(100, -500, 0);
 }
 
 void TutorialApplication::host(){
@@ -356,7 +368,6 @@ void TutorialApplication::fireProjectile()
         {
             if(!serverProjectiles[i]->isActive())
             {
-                //std::cout << "Launching server projectile " << i << std::endl;
                 serverProjectiles[i]->setActive(true);
                 serverProjectiles[i]->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
                                                                  paddle->getRootNode()->getPosition().y + 20,
@@ -377,7 +388,6 @@ void TutorialApplication::fireProjectile()
         {
             if(!clientProjectiles[i]->isActive())
             {
-                //std::cout << "Launching client projectile " << i << std::endl;
                 clientProjectiles[i]->setActive(true);
                 clientProjectiles[i]->getRootNode()->setPosition(paddle2->getRootNode()->getPosition().x,
                                                                  paddle2->getRootNode()->getPosition().y + 20,
@@ -392,6 +402,7 @@ void TutorialApplication::fireProjectile()
         }
     } 
 }
+
 
 void TutorialApplication::pauseMusic(){
     if(Mix_VolumeMusic(-1) == 0){
@@ -409,18 +420,75 @@ void TutorialApplication::pauseSoundEffects(){
     }
 }
 
+void TutorialApplication::recycleProjectiles()
+{
+    for(int i = 0; i < maxProjectiles; ++i)
+    {
+        //Check if projectile out of bounds, if yes then deactivate
+        if(serverProjectiles[i]->getRootNode()->getPosition().y > 1500 && serverProjectiles[i]->isActive())
+        {
+             serverProjectiles[i]->reset();
+        }
+
+        if(clientProjectiles[i]->getRootNode()->getPosition().y > 1500 && clientProjectiles[i]->isActive())
+        {
+             clientProjectiles[i]->reset();
+        }
+    }
+}
+
+void TutorialApplication::recycleEnemies(float time)
+{
+    int size = enemies.size();
+    timer += time;
+    bool startSpawn = false;
+    if(timer >= maxTime)
+    {
+        timer = 0.0f;
+        startSpawn = true;
+    }
+    for(int i = 0; i < size; ++i)
+    {
+        if(enemies[i]->getRootNode()->getPosition().y <= 0 && enemies[i]->getRootNode()->getPosition().y >= -100)
+        {
+            mGameOver = true;
+            break;
+        }
+        if(startSpawn && !enemies[i]->isActive())
+        {
+            enemies[i]->spawn();
+            startSpawn = false;
+        }
+    }
+}
+
+void TutorialApplication::gameReset()
+{
+    paddle->getRootNode()->setPosition(20, 25, 0);
+    paddle2->getRootNode()->setPosition(-20, 25, 0);
+
+    int size = serverProjectiles.size();
+    for(int i = 0; i < size; ++i)
+    {
+        serverProjectiles[i]->reset();
+        clientProjectiles[i]->reset();
+    }
+
+    for(int i = 0; i < maxEnemies; ++i)
+    {
+        enemies[i]->reset();
+    }
+    mGameOver = false;
+    gameStarted = true;
+}
+
 void TutorialApplication::quit(){
     mShutDown = true;
 }
 
-Ogre::String TutorialApplication::createMessage(float time)
+Ogre::String TutorialApplication::createMessage()
 {
-    Ogre::String message = "";  //Do we need to send both? don't think so actually
-    // message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
-    // message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().y) + " ";
-
-    // message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().x) + " ";
-    // message += Ogre::StringConverter::toString(paddle2->getRootNode()->getPosition().y) + " ";
+    Ogre::String message = "";
 
     if(!mIsClient) 
     {
@@ -430,41 +498,18 @@ Ogre::String TutorialApplication::createMessage(float time)
         //Check projectile status
         for(int i = 0; i < maxProjectiles; ++i)
         {
-            //Check if projectile out of bounds, if yes then deactivate
-            if(serverProjectiles[i]->getRootNode()->getPosition().y > 1500 && serverProjectiles[i]->isActive())
-            {
-                 serverProjectiles[i]->getRootNode()->setPosition(0, -100, 0);
-                 serverProjectiles[i]->setVelocity(0, 0, 0);
-                 serverProjectiles[i]->setActive(false);
-                 serverProjectiles[i]->updateTransform();
-                 serverProjectiles[i]->updateWorldTransform();
-            }
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().x) + " ";
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().y) + " ";
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().z) + " ";
         }
 
         int size = enemies.size();
-        timer += time;
-        bool startSpawn = false;
-        if(timer >= maxTime)
-        {
-            timer = 0.0f;
-            startSpawn = true;
-        }
         for(int i = 0; i < size; ++i)
         {
-            if(enemies[i]->getRootNode()->getPosition().y <= 0 && enemies[i]->getRootNode()->getPosition().y >= -100)
+            if(mGameOver)
             {
-                std::cout << "setting gameover" << std::endl;
-                mGameOver = true;
                 message += "GAMEOVER ";
                 break;
-            }
-            if(startSpawn && !enemies[i]->isActive())
-            {
-                enemies[i]->spawn();
-                startSpawn = false;
             }
             message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().x) + " ";
             message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().y) + " ";
@@ -507,8 +552,17 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     mKeyboard->capture();
     mMouse->capture();
 
+    if(mGameOver)
+        gameReset();
+
     if(sim && gameStarted)
         sim->stepSimulation(evt.timeSinceLastFrame);
+
+    if(gameStarted)
+    {
+        recycleProjectiles();
+        recycleEnemies(evt.timeSinceLastFrame);
+    }
 
     //pregame startup
     if(mNetworkingStarted && !gameStarted)
@@ -520,7 +574,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 std::string s;
                 //Update server ship
                 stream >> s;
-                std::cout << s << std::endl;
                 if(s.compare("server_ready") == 0){
                     CEGUI::ToggleButton *p1ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p1ready"));
                     p1ready->setSelected(true);
@@ -535,7 +588,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 std::string s;
                 //Update server ship
                 stream >> s;
-                std::cout << s << std::endl;
                 if(s.compare("client_ready") == 0){
                     CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p2ready"));
                     p2ready->setSelected(true);
@@ -557,7 +609,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     //Send message
     if(mNetworkingStarted && gameStarted)
     {
-        Ogre::String message = createMessage(evt.timeSinceLastFrame);
+        Ogre::String message = createMessage();
         if(mIsClient)
         {
             netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
@@ -574,8 +626,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
             {
                 if(netManager.pollForActivity(1))
                 {
-                    //std::cout << "received message from server" << std::endl;
-                   
                     std::istringstream stream(netManager.udpServerData[0].output);
                     std::string s;
 
@@ -607,7 +657,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                         stream >> s;
                         if(s.compare("GAMEOVER") == 0)
                         {
-                            std::cout << "gameover" << std::endl;
                             mGameOver = true;
                             break;
                         }
@@ -626,18 +675,14 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
             {
                 if(netManager.pollForActivity(1))
                 {
-                    std::cout << "received message from client" << std::endl;
-
                     std::istringstream stream(netManager.udpClientData[0]->output);
                     std::string s;
 
                     //Update client ship
                     stream >> s;
                     x = atof(s.c_str());
-                    std::cout << "x: " << x << std::endl;
                     stream >> s;
                     y = atof(s.c_str());
-                    std::cout << "y: " << y << std::endl;
                     stream >> s;
                     z = atof(s.c_str());
                     paddle2->getRootNode()->setPosition(x, y, z);
@@ -663,7 +708,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     if(!processUnbufferedInput(evt))
         return false;
 
-    //std::cout << "Game Over!" << std::endl;
+    std::cout << "score: " << GameObject::score << std::endl;
     return true;
 }
 

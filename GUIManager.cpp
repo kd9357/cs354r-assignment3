@@ -29,7 +29,7 @@ void GUIManager::createMenus(){
     settings = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("settings.layout");
     settings->hide();
     guiRoot->addChild(settings);
-
+    
     score = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("score.layout");
     score->hide();
     guiRoot->addChild(score);
