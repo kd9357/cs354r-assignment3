@@ -27,9 +27,9 @@ void Enemy::spawn()
 {
   setActive(true);
   timer = 0.0f;
-  Ogre::Real x = Ogre::Math::RangeRandom(-20.0f, 20.0f);
+  Ogre::Real x = Ogre::Math::RangeRandom(-30.0f, 30.0f);
   Ogre::Real y = 1000.0f;
-  Ogre::Real z = Ogre::Math::RangeRandom(-20.0f, 20.0f);
+  Ogre::Real z = Ogre::Math::RangeRandom(-30.0f, 30.0f);
 
   getRootNode()->setPosition(x, y, z);
   setVelocity(0, 0, 0);

@@ -7,7 +7,10 @@ Projectile::Projectile(Ogre::SceneManager* scnMgr, Simulator* sim, int* s, Ogre:
 {
   //client and server have different colored projectiles/different scores to update
   Ogre::Entity* ball = scnMgr->createEntity(n, "sphere.mesh");
-  ball->setMaterialName("Examples/SphereMappedRustySteel");
+  if(isClient)
+    ball->setMaterialName("Examples/SphereMappedRustySteel");
+  else
+    ball->setMaterialName("Examles/Chrome");
   ball->setCastShadows(true);
   rootNode = scnMgr->getRootSceneNode()->createChildSceneNode();
   rootNode->attachObject(ball);

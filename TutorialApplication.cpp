@@ -23,11 +23,12 @@ http://www.ogre3d.org/wiki/
 TutorialApplication::TutorialApplication(void)
 {
     //Start as single player
+    mGameOver = false;
     mMultiplayer = false;
     mPortNumber = 51215;
     mNetworkingStarted = false;
     maxProjectiles = 3;
-    maxEnemies = 1;
+    maxEnemies = 8;
     timer = 0;
     maxTime = 1;
 
@@ -361,6 +362,13 @@ Ogre::String TutorialApplication::createMessage(float time)
         }
         for(int i = 0; i < size; ++i)
         {
+            if(enemies[i]->getRootNode()->getPosition().y <= 0 && enemies[i]->getRootNode()->getPosition().y >= -100)
+            {
+                std::cout << "setting gameover" << std::endl;
+                mGameOver = true;
+                message += "GAMEOVER ";
+                break;
+            }
             if(startSpawn && !enemies[i]->isActive())
             {
                 enemies[i]->spawn();
@@ -407,129 +415,122 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     mKeyboard->capture();
     mMouse->capture();
 
-    if(sim)
-        sim->stepSimulation(evt.timeSinceLastFrame);
-
-    // if(!mIsClient)
-    // {
-    //     timer += evt.timeSinceLastFrame;
-    //     if(timer >= maxTime)
-    //     {
-    //         timer = 0.0f;
-    //         int size = enemies.size();
-    //         for(int i = 0; i < size; ++i)
-    //         {
-    //             if(!enemies[i]->isActive())
-    //             {
-    //                 enemies[i]->spawn();
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
-
-    //Send message
-    if(mNetworkingStarted)
+    if(!mGameOver)
     {
-        Ogre::String message = createMessage(evt.timeSinceLastFrame);
-        if(mIsClient)
+        if(sim)
+            sim->stepSimulation(evt.timeSinceLastFrame);
+
+        //Send message
+        if(mNetworkingStarted)
         {
-            netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
-        }
-        else if(netManager.getClients() > 0)
-        {
-            netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
-        }
-    }
-    //Receive message
-    if(mNetworkingStarted)
-    {
-        if(mIsClient)
-        {
-            if(netManager.pollForActivity(1))
+            Ogre::String message = createMessage(evt.timeSinceLastFrame);
+            if(mIsClient)
             {
-                //std::cout << "received message from server" << std::endl;
-               
-                std::istringstream stream(netManager.udpServerData[0].output);
-                std::string s;
-
-                //Update server ship
-                stream >> s;
-                x = atof(s.c_str());
-                stream >> s;
-                y = atof(s.c_str());
-                stream >> s;
-                z = atof(s.c_str());
-                paddle->getRootNode()->setPosition(x, y, z);
-
-                //Update server projectiles
-                for(int i = 0; i < maxProjectiles; ++i)
+                netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
+            }
+            else if(netManager.getClients() > 0)
+            {
+                netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
+            }
+        }
+        //Receive message
+        if(mNetworkingStarted)
+        {
+            if(mIsClient)
+            {
+                if(netManager.pollForActivity(1))
                 {
+                    //std::cout << "received message from server" << std::endl;
+                   
+                    std::istringstream stream(netManager.udpServerData[0].output);
+                    std::string s;
+
+                    //Update server ship
                     stream >> s;
                     x = atof(s.c_str());
                     stream >> s;
                     y = atof(s.c_str());
                     stream >> s;
                     z = atof(s.c_str());
-                    serverProjectiles[i]->getRootNode()->setPosition(x, y, z);
-                    serverProjectiles[i]->updateTransform();
-                    serverProjectiles[i]->updateWorldTransform();
+                    paddle->getRootNode()->setPosition(x, y, z);
+
+                    //Update server projectiles
+                    for(int i = 0; i < maxProjectiles; ++i)
+                    {
+                        stream >> s;
+                        x = atof(s.c_str());
+                        stream >> s;
+                        y = atof(s.c_str());
+                        stream >> s;
+                        z = atof(s.c_str());
+                        serverProjectiles[i]->getRootNode()->setPosition(x, y, z);
+                        serverProjectiles[i]->updateTransform();
+                        serverProjectiles[i]->updateWorldTransform();
+                    }
+
+                    for(int i = 0; i < maxEnemies; ++i)
+                    {
+                        stream >> s;
+                        if(s.compare("GAMEOVER") == 0)
+                        {
+                            std::cout << "gameover" << std::endl;
+                            mGameOver = true;
+                            break;
+                        }
+                        x = atof(s.c_str());
+                        stream >> s;
+                        y = atof(s.c_str());
+                        stream >> s;
+                        z = atof(s.c_str());
+                        enemies[i]->getRootNode()->setPosition(x, y, z);
+                        enemies[i]->updateTransform();
+                        enemies[i]->updateWorldTransform();
+                    }
                 }
-
-                for(int i = 0; i < maxEnemies; ++i)
+            }
+            else
+            {
+                if(netManager.pollForActivity(1))
                 {
+                    std::cout << "received message from client" << std::endl;
+
+                    std::istringstream stream(netManager.udpClientData[0]->output);
+                    std::string s;
+
+                    //Update client ship
                     stream >> s;
                     x = atof(s.c_str());
+                    std::cout << "x: " << x << std::endl;
                     stream >> s;
                     y = atof(s.c_str());
+                    std::cout << "y: " << y << std::endl;
                     stream >> s;
                     z = atof(s.c_str());
-                    enemies[i]->getRootNode()->setPosition(x, y, z);
-                    enemies[i]->updateTransform();
-                    enemies[i]->updateWorldTransform();
+                    paddle2->getRootNode()->setPosition(x, y, z);
+
+                    //Update server projectiles
+                    for(int i = 0; i < maxProjectiles; ++i)
+                    {
+                        stream >> s;
+                        x = atof(s.c_str());
+                        stream >> s;
+                        y = atof(s.c_str());
+                        stream >> s;
+                        z = atof(s.c_str());
+                        clientProjectiles[i]->getRootNode()->setPosition(x, y, z);
+                        clientProjectiles[i]->updateTransform();
+                        clientProjectiles[i]->updateWorldTransform();
+                    }
                 }
             }
         }
-        else
-        {
-            if(netManager.pollForActivity(1))
-            {
-                std::cout << "received message from client" << std::endl;
-
-                std::istringstream stream(netManager.udpClientData[0]->output);
-                std::string s;
-
-                //Update client ship
-                stream >> s;
-                x = atof(s.c_str());
-                std::cout << "x: " << x << std::endl;
-                stream >> s;
-                y = atof(s.c_str());
-                std::cout << "y: " << y << std::endl;
-                stream >> s;
-                z = atof(s.c_str());
-                paddle2->getRootNode()->setPosition(x, y, z);
-
-                //Update server projectiles
-                for(int i = 0; i < maxProjectiles; ++i)
-                {
-                    stream >> s;
-                    x = atof(s.c_str());
-                    stream >> s;
-                    y = atof(s.c_str());
-                    stream >> s;
-                    z = atof(s.c_str());
-                    clientProjectiles[i]->getRootNode()->setPosition(x, y, z);
-                    clientProjectiles[i]->updateTransform();
-                    clientProjectiles[i]->updateWorldTransform();
-                }
-            }
-        }
-    }
     
+    }
+
     if(!processUnbufferedInput(evt))
         return false;
 
+    //std::cout << "Game Over!" << std::endl;
     return true;
 }
 

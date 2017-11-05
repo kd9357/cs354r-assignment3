@@ -55,6 +55,7 @@ protected:
     void fireProjectile();
     Ogre::String createMessage(float time);
 
+    bool mGameOver;
     //Simulator and Game objects
     Simulator * sim;
     Ball * ball;
@@ -66,8 +67,6 @@ protected:
     int maxProjectiles;
     float timer;
     float maxTime;
-
-    const float bound = 20.0f;
     
     std::vector<Projectile*> serverProjectiles;
     std::vector<Projectile*> clientProjectiles;
