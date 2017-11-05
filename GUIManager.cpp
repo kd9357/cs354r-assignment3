@@ -45,7 +45,9 @@ void GUIManager::createMenus(){
     //Lobby buttons -> quit is in TutorialApplication.cpp
     CEGUI::Window *serverhostname = guiRoot->getChildRecursive("serverhostname");
     serverhostname->setDisabled(true);
-    serverhostname->setTooltipText("If you wish to host a game, press Host");
+
+    CEGUI::Window *start = guiRoot->getChildRecursive("start");
+    start->setDisabled(true);
 
     CEGUI::Window *lobbyBackBtn = guiRoot->getChildRecursive("lobbyBackBtn");
     lobbyBackBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GUIManager::showMainMenu, this));
