@@ -53,7 +53,7 @@ protected:
     void stopNetworking();
 
     void fireProjectile();
-    Ogre::String createMessage();
+    Ogre::String createMessage(float time);
 
     //Simulator and Game objects
     Simulator * sim;

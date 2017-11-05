@@ -27,7 +27,7 @@ TutorialApplication::TutorialApplication(void)
     mPortNumber = 51215;
     mNetworkingStarted = false;
     maxProjectiles = 3;
-    maxEnemies = 10;
+    maxEnemies = 1;
     timer = 0;
     maxTime = 1;
 
@@ -35,7 +35,7 @@ TutorialApplication::TutorialApplication(void)
 
 
     //Hardcoded IP number
-    mIPAddress = "rousseau";
+    mIPAddress = "seneca-the-younger";
 
     SoundManager::initSoundManager();
 }
@@ -320,7 +320,7 @@ bool TutorialApplication::keyReleased( const OIS::KeyEvent &arg )
     return BaseApplication::keyReleased(arg);
 }
 
-Ogre::String TutorialApplication::createMessage()
+Ogre::String TutorialApplication::createMessage(float time)
 {
     Ogre::String message = "";  //Do we need to send both? don't think so actually
     // message += Ogre::StringConverter::toString(paddle->getRootNode()->getPosition().x) + " ";
@@ -349,14 +349,26 @@ Ogre::String TutorialApplication::createMessage()
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().x) + " ";
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().y) + " ";
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().z) + " ";
+        }
 
-            int size = enemies.size();
-            for(int i = 0; i < size; ++i)
+        int size = enemies.size();
+        timer += time;
+        bool startSpawn = false;
+        if(timer >= maxTime)
+        {
+            timer = 0.0f;
+            startSpawn = true;
+        }
+        for(int i = 0; i < size; ++i)
+        {
+            if(startSpawn && !enemies[i]->isActive())
             {
-                message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().x) + " ";
-                message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().y) + " ";
-                message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().z) + " ";
+                enemies[i]->spawn();
+                startSpawn = false;
             }
+            message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().x) + " ";
+            message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().y) + " ";
+            message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().z) + " ";
         }
     }
     else //otherwise only send client projectile data
@@ -398,28 +410,28 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     if(sim)
         sim->stepSimulation(evt.timeSinceLastFrame);
 
-    if(!mIsClient)
-    {
-        timer += evt.timeSinceLastFrame;
-        if(timer >= maxTime)
-        {
-            timer = 0.0f;
-            int size = enemies.size();
-            for(int i = 0; i < size; ++i)
-            {
-                if(!enemies[i]->isActive())
-                {
-                    enemies[i]->spawn();
-                    break;
-                }
-            }
-        }
-    }
+    // if(!mIsClient)
+    // {
+    //     timer += evt.timeSinceLastFrame;
+    //     if(timer >= maxTime)
+    //     {
+    //         timer = 0.0f;
+    //         int size = enemies.size();
+    //         for(int i = 0; i < size; ++i)
+    //         {
+    //             if(!enemies[i]->isActive())
+    //             {
+    //                 enemies[i]->spawn();
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 
     //Send message
     if(mNetworkingStarted)
     {
-        Ogre::String message = createMessage();
+        Ogre::String message = createMessage(evt.timeSinceLastFrame);
         if(mIsClient)
         {
             netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
@@ -466,7 +478,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
                 for(int i = 0; i < maxEnemies; ++i)
                 {
-                    stream >> s;
                     stream >> s;
                     x = atof(s.c_str());
                     stream >> s;

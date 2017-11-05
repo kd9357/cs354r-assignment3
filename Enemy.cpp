@@ -41,7 +41,7 @@ void Enemy::update(float elapsedTime)
 {
   lastTime += elapsedTime;
   timer += elapsedTime;
-  if(timer >= 10.0f)
+  if(timer >= 10.0f && isActive())
   {
     reset();
     timer = 0.0f;
@@ -61,7 +61,7 @@ void Enemy::update(float elapsedTime)
 
 void Enemy::reset()
 {
-  timer = 0;
+  //timer = 0;
   setActive(false);
   rootNode->setPosition(0, -1000, 0);
   setVelocity(0, 0, 0);
