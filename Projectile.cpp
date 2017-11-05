@@ -53,12 +53,10 @@ void Projectile::update(float elapsedTime) {
     {
       //Play sound effect
       //Update score
-      std::cout << "hit ogre\n";
 
       reset();
       collision->reset();
     }
-    std::cout << "hit something\n";
     lastTime = 0.0f;
   }
   context->hit = false;

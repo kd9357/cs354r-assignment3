@@ -68,6 +68,7 @@ protected:
     Ogre::String createMessage();
     void recycleProjectiles();
     void recycleEnemies(float time);
+    void gameReset();
 
     bool mGameOver;
     //Simulator and Game objects

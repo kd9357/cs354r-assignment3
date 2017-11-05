@@ -196,12 +196,10 @@ void TutorialApplication::startNetworking(bool isClient) {
         netManager.addNetworkInfo(PROTOCOL_UDP, NULL, mPortNumber);
         netManager.startServer();
         netManager.acceptConnections();
-        std::cout << "Started Server\n";
     }
     else {
         netManager.addNetworkInfo(PROTOCOL_UDP, mIPAddress, mPortNumber);
         netManager.startClient();
-        std::cout << "Started Client\n";
     }
 }
 
@@ -209,7 +207,6 @@ void TutorialApplication::startNetworking(bool isClient) {
 void TutorialApplication::stopNetworking() {
     netManager.close();
     mNetworkingStarted = false;
-    std::cout << "Networking stopped\n";
 }
 
 CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)
@@ -364,7 +361,6 @@ void TutorialApplication::fireProjectile()
         {
             if(!serverProjectiles[i]->isActive())
             {
-                //std::cout << "Launching server projectile " << i << std::endl;
                 serverProjectiles[i]->setActive(true);
                 serverProjectiles[i]->getRootNode()->setPosition(paddle->getRootNode()->getPosition().x,
                                                                  paddle->getRootNode()->getPosition().y + 20,
@@ -385,7 +381,6 @@ void TutorialApplication::fireProjectile()
         {
             if(!clientProjectiles[i]->isActive())
             {
-                //std::cout << "Launching client projectile " << i << std::endl;
                 clientProjectiles[i]->setActive(true);
                 clientProjectiles[i]->getRootNode()->setPosition(paddle2->getRootNode()->getPosition().x,
                                                                  paddle2->getRootNode()->getPosition().y + 20,
@@ -408,24 +403,14 @@ void TutorialApplication::recycleProjectiles()
         //Check if projectile out of bounds, if yes then deactivate
         if(serverProjectiles[i]->getRootNode()->getPosition().y > 1500 && serverProjectiles[i]->isActive())
         {
-             serverProjectiles[i]->getRootNode()->setPosition(0, -100, 0);
-             serverProjectiles[i]->setVelocity(0, 0, 0);
-             serverProjectiles[i]->setActive(false);
-             serverProjectiles[i]->updateTransform();
-             serverProjectiles[i]->updateWorldTransform();
+             serverProjectiles[i]->reset();
         }
 
         if(clientProjectiles[i]->getRootNode()->getPosition().y > 1500 && clientProjectiles[i]->isActive())
         {
-             clientProjectiles[i]->getRootNode()->setPosition(0, -100, 0);
-             clientProjectiles[i]->setVelocity(0, 0, 0);
-             clientProjectiles[i]->setActive(false);
-             clientProjectiles[i]->updateTransform();
-             clientProjectiles[i]->updateWorldTransform();
+             clientProjectiles[i]->reset();
         }
     }
-
-
 }
 
 void TutorialApplication::recycleEnemies(float time)
@@ -451,6 +436,26 @@ void TutorialApplication::recycleEnemies(float time)
             startSpawn = false;
         }
     }
+}
+
+void TutorialApplication::gameReset()
+{
+    paddle->getRootNode()->setPosition(20, 25, 0);
+    paddle2->getRootNode()->setPosition(-20, 25, 0);
+
+    int size = serverProjectiles.size();
+    for(int i = 0; i < size; ++i)
+    {
+        serverProjectiles[i]->reset();
+        clientProjectiles[i]->reset();
+    }
+
+    for(int i = 0; i < maxEnemies; ++i)
+    {
+        enemies[i]->reset();
+    }
+    mGameOver = false;
+    gameStarted = true;
 }
 
 void TutorialApplication::quit(){
@@ -523,6 +528,9 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     mKeyboard->capture();
     mMouse->capture();
 
+    if(mGameOver)
+        gameReset();
+
     if(sim && gameStarted)
         sim->stepSimulation(evt.timeSinceLastFrame);
 
@@ -542,7 +550,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 std::string s;
                 //Update server ship
                 stream >> s;
-                std::cout << s << std::endl;
                 if(s.compare("server_ready") == 0){
                     CEGUI::ToggleButton *p1ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p1ready"));
                     p1ready->setSelected(true);
@@ -557,7 +564,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 std::string s;
                 //Update server ship
                 stream >> s;
-                std::cout << s << std::endl;
                 if(s.compare("client_ready") == 0){
                     CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p2ready"));
                     p2ready->setSelected(true);
@@ -596,8 +602,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
             {
                 if(netManager.pollForActivity(1))
                 {
-                    //std::cout << "received message from server" << std::endl;
-                   
                     std::istringstream stream(netManager.udpServerData[0].output);
                     std::string s;
 
@@ -629,7 +633,6 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                         stream >> s;
                         if(s.compare("GAMEOVER") == 0)
                         {
-                            std::cout << "gameover" << std::endl;
                             mGameOver = true;
                             break;
                         }
@@ -648,18 +651,14 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
             {
                 if(netManager.pollForActivity(1))
                 {
-                    std::cout << "received message from client" << std::endl;
-
                     std::istringstream stream(netManager.udpClientData[0]->output);
                     std::string s;
 
                     //Update client ship
                     stream >> s;
                     x = atof(s.c_str());
-                    std::cout << "x: " << x << std::endl;
                     stream >> s;
                     y = atof(s.c_str());
-                    std::cout << "y: " << y << std::endl;
                     stream >> s;
                     z = atof(s.c_str());
                     paddle2->getRootNode()->setPosition(x, y, z);
