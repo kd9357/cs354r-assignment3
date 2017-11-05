@@ -8,6 +8,6 @@ class Paddle : public GameObject
     // float length;
     // float width;
   public:
-    Paddle(Ogre::SceneManager* scnMgr, Simulator* sim, Ogre::Real width, Ogre::Real height, Ogre::String n);
+    Paddle(Ogre::SceneManager* scnMgr, Simulator* sim, Ogre::Real width, Ogre::Real height, Ogre::String n, bool isClient);
     ~Paddle();
 };

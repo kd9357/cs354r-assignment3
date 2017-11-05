@@ -6,7 +6,7 @@
 
 GameObject::GameObject(Ogre::SceneManager* scnMgr, Simulator* sim, Ogre::String n)
 {
-	scnMgr = scnMgr;
+	sceneMgr = scnMgr;
 	simulator = sim;
 	shape = NULL;
 	motionState = NULL;
@@ -27,6 +27,10 @@ void GameObject::updateTransform(){
 	tr.setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
 
 	if (motionState) motionState -> updateTransform(tr);
+}
+
+void GameObject::updateWorldTransform(){
+	body->setWorldTransform(tr);
 }
 
 void GameObject::addToSimulator(){
@@ -55,10 +59,18 @@ void GameObject::update(float elapsedTime)
 	simulator->getDynamicsWorld()->contactTest(body, *callback);
 	if(context->hit && (lastTime > 0.1f || (context->lastBody != context->body && lastTime > 0.05f)))
 	{
+		Ogre::String objName = callback->ctxt.theObject->getName();
 		std::cout << "collision occurred" << std::endl;
 		std::cout << "my name: " << getName() << std::endl;
-		std::cout << "collision name: " << callback->ctxt.theObject->getName() << std::endl;
+		std::cout << "collision name: " << objName << std::endl;
 		lastTime = 0.0f;
 	}
 	context->hit = false;
+}
+
+void GameObject::destroyObject(void) {
+	simulator->removeObject(this);
+	rootNode->detachAllObjects();
+	sceneMgr->destroySceneNode(rootNode);
+	delete this;
 }

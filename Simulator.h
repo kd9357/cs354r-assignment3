@@ -22,7 +22,7 @@ class Simulator
 		~Simulator();
 
 		void addObject(GameObject* o);
-		//bool removeObject(GameObject* o);
+		bool removeObject(GameObject* o);
 		void stepSimulation(const Ogre::Real elapsedTime, int maxSubSteps = 1, 
 								const Ogre::Real fixedTimestep = 1.0f/60.0f);
 		btAlignedObjectArray<btCollisionShape*> getCollisionShapes(void);

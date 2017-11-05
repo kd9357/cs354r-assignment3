@@ -20,10 +20,13 @@ http://www.ogre3d.org/wiki/
 
 #include "BaseApplication.h"
 #include "Simulator.h"
-#include "PlayingField.h"
 #include "Ball.h"
 #include "Paddle.h"
-
+#include "NetManager.h"
+#include "Enemy.h"
+#include "Projectile.h"
+#include "SoundManager.h"
+#include "GUIManager.h"
 
 //---------------------------------------------------------------------------
 
@@ -39,21 +42,64 @@ protected:
     virtual void createViewports(void);
     // OIS::MouseListener
     virtual bool mouseMoved(const OIS::MouseEvent& me);
+    virtual bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+    virtual bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
     // Ogre::KeyListener
     virtual bool processUnbufferedInput(const Ogre::FrameEvent& fe);
+    virtual bool keyPressed(const OIS::KeyEvent &arg);
+    virtual bool keyReleased(const OIS::KeyEvent &arg);
     // Ogre::FrameListener
     virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
+    //Button handlers
+    void registerEvents(void);
+    void quit(void);
+    void host(void);
+    void join(void);
+    void start(void);
+    void clientReady(void);
+
+    //helper functions
+    void startNetworking(bool isClient);
+    void stopNetworking();
+
+    void fireProjectile();
+    Ogre::String createMessage();
+
     //Simulator and Game objects
     Simulator * sim;
-    PlayingField * field;
+    GUIManager * gui;
     Ball * ball;
     Paddle * paddle;
+    Paddle * paddle2;
+    Enemy * enemy;
+    Projectile * proj;
+    int numEnemies;
+    int maxProjectiles;
+    
+    std::vector<Projectile*> serverProjectiles;
+    std::vector<Projectile*> clientProjectiles;
+
     //Camera Parameters
     Ogre::SceneNode * mCamNode;
     Ogre::Vector3 mDirection;
     Ogre::Real mMove;
     Ogre::Real mRotate;
+
+    //keyboard Parameters
+    bool spacePressed;
+
+    //Networking Parameters
+    NetManager netManager;
+    bool mNetworkingStarted;
+    int mPortNumber;
+    const char* mIPAddress;
+    bool mIsClient;
+    bool mMultiplayer;
+    bool gameStarted;
+
+    //Sound Parameters
+    SoundManager soundManager;
 };
 
 //---------------------------------------------------------------------------
