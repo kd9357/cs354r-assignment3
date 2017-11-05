@@ -40,8 +40,7 @@ void Projectile::setActive(bool b)
 void Projectile::update(float elapsedTime) {
   lastTime += elapsedTime;
   simulator->getDynamicsWorld()->contactTest(body, *callback);
-  if (context->hit && (context->velNorm > 1.0 || context->velNorm < -1.0) 
-    && (lastTime > 0.1 || (context->lastBody != context->body && lastTime > 0.05))) {
+  if (context->hit && (lastTime > 0.1 || (context->lastBody != context->body && lastTime > 0.05))) {
     //Handle the hit
     GameObject * collision = callback->ctxt.theObject;
     Ogre::String objName = collision->getName();
@@ -51,9 +50,12 @@ void Projectile::update(float elapsedTime) {
     {
       //Play sound effect
       //Update score
-      collision->destroyObject();
+      std::cout << "hit ogre\n";
+
       reset();
+      collision->reset();
     }
+    std::cout << "hit something\n";
     lastTime = 0.0f;
   }
   context->hit = false;
@@ -62,9 +64,7 @@ void Projectile::update(float elapsedTime) {
 void Projectile::reset() {
   active = false;
   setVelocity(0, 0, 0);
-  if(!isClient)
-    getRootNode()->setPosition(25, -100, 0);
-  else
-    getRootNode()->setPosition(-25, -100, 0);
+  getRootNode()->setPosition(-25, -100, 0);
   updateTransform();
+  updateWorldTransform();
 }

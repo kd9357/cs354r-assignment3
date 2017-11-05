@@ -26,14 +26,16 @@ TutorialApplication::TutorialApplication(void)
     mMultiplayer = false;
     mPortNumber = 51215;
     mNetworkingStarted = false;
-    numEnemies = 0;
     maxProjectiles = 3;
+    maxEnemies = 10;
+    timer = 0;
+    maxTime = 1;
 
     spacePressed = false;
 
 
     //Hardcoded IP number
-    mIPAddress = "128.83.120.90";
+    mIPAddress = "rousseau";
 
     SoundManager::initSoundManager();
 }
@@ -90,10 +92,15 @@ void TutorialApplication::createScene(void)
     paddle->updateTransform();
     paddle2->updateTransform();
 
-    enemy = new Enemy(mSceneMgr, sim, "ogre" + Ogre::StringConverter::toString(numEnemies));
-    ++numEnemies;
-    enemy->getRootNode()->setPosition(0, 1000, 0);
-    enemy->addToSimulator();
+    for(int i = 0; i < maxEnemies; ++i)
+    {
+        Ogre::String name = "ogre" + Ogre::StringConverter::toString(i);
+        Enemy* enemy = new Enemy(mSceneMgr, sim, name);
+        enemy->setActive(false);
+        enemy->getRootNode()->setPosition(0, -1000, 0);
+        enemy->addToSimulator();
+        enemies.push_back(enemy);
+    }    
 
     //Create projectiles
     int temp;
@@ -342,6 +349,14 @@ Ogre::String TutorialApplication::createMessage()
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().x) + " ";
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().y) + " ";
             message += Ogre::StringConverter::toString(serverProjectiles[i]->getRootNode()->getPosition().z) + " ";
+
+            int size = enemies.size();
+            for(int i = 0; i < size; ++i)
+            {
+                message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().x) + " ";
+                message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().y) + " ";
+                message += Ogre::StringConverter::toString(enemies[i]->getRootNode()->getPosition().z) + " ";
+            }
         }
     }
     else //otherwise only send client projectile data
@@ -382,6 +397,24 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
     if(sim)
         sim->stepSimulation(evt.timeSinceLastFrame);
+
+    if(!mIsClient)
+    {
+        timer += evt.timeSinceLastFrame;
+        if(timer >= maxTime)
+        {
+            timer = 0.0f;
+            int size = enemies.size();
+            for(int i = 0; i < size; ++i)
+            {
+                if(!enemies[i]->isActive())
+                {
+                    enemies[i]->spawn();
+                    break;
+                }
+            }
+        }
+    }
 
     //Send message
     if(mNetworkingStarted)
@@ -430,6 +463,20 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                     serverProjectiles[i]->updateTransform();
                     serverProjectiles[i]->updateWorldTransform();
                 }
+
+                for(int i = 0; i < maxEnemies; ++i)
+                {
+                    stream >> s;
+                    stream >> s;
+                    x = atof(s.c_str());
+                    stream >> s;
+                    y = atof(s.c_str());
+                    stream >> s;
+                    z = atof(s.c_str());
+                    enemies[i]->getRootNode()->setPosition(x, y, z);
+                    enemies[i]->updateTransform();
+                    enemies[i]->updateWorldTransform();
+                }
             }
         }
         else
@@ -468,7 +515,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
             }
         }
     }
-
+    
     if(!processUnbufferedInput(evt))
         return false;
 

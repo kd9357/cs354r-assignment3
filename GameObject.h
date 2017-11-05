@@ -40,6 +40,7 @@ class GameObject
 		virtual void update(float elapsedTime);
 		Ogre::String getName(void) { return name; }
 		void destroyObject(void);
+		virtual void reset () {}
 };
 
 #endif
