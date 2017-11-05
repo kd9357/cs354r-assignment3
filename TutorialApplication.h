@@ -58,6 +58,8 @@ protected:
     void join(void);
     void start(void);
     void clientReady(void);
+    void pauseMusic(void);
+    void pauseSoundEffects(void);
 
     //helper functions
     void startNetworking(bool isClient);

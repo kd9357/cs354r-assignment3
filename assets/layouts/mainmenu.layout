@@ -1,30 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="DefaultWindow" name="MainMenu" >
-        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-        <Property name="MaxSize" value="{{1,0},{1,0}}" />
-        <Window type="Vanilla/FrameWindow" name="FrameWindow" >
-            <Property name="Area" value="{{0,513},{0,205},{0.3,322},{0.3,220}}" />
-            <Property name="Text" value="Main Menu" />
-            <Window type="Vanilla/Button" name="singleplayerBtn" >
-                <Property name="Area" value="{{0,40},{0,15},{0,136},{0,47}}" />
-                <Property name="Text" value="Single Player" />
-            </Window>
-            <Window type="Vanilla/Button" name="multiplayerBtn" >
-                <Property name="Area" value="{{0,40},{0,60},{0,136},{0,92}}" />
-                <Property name="Font" value="Jura-10" />
-                <Property name="Text" value="Multi Player" />
-            </Window>
-            <Window type="Vanilla/Button" name="settingsBtn" >
-                <Property name="Area" value="{{0,40},{0,105},{0,136},{0,137}}" />
-                <Property name="Text" value="Settings" />
-            </Window>
-            <Window type="Vanilla/Button" name="quitBtn" >
-                <Property name="Area" value="{{0,40},{0,150},{0,136},{0,182}}" />
-                <Property name="Font" value="Jura-10" />
-                <Property name="Text" value="Quit" />
-            </Window>
+    <Window type="Vanilla/FrameWindow" name="MainMenuFrameWindow" >
+        <Property name="Area" value="{{0,513},{0,205},{0.3,322},{0.3,220}}" />
+        <Property name="Text" value="Main Menu" />
+        <Window type="Vanilla/Button" name="singleplayerBtn" >
+            <Property name="Area" value="{{0,40},{0,15},{0,136},{0,47}}" />
+            <Property name="Text" value="Single Player" />
+        </Window>
+        <Window type="Vanilla/Button" name="multiplayerBtn" >
+            <Property name="Area" value="{{0,40},{0,60},{0,136},{0,92}}" />
+            <Property name="Font" value="Jura-10" />
+            <Property name="Text" value="Multi Player" />
+        </Window>
+        <Window type="Vanilla/Button" name="settingsBtn" >
+            <Property name="Area" value="{{0,40},{0,105},{0,136},{0,137}}" />
+            <Property name="Text" value="Settings" />
+        </Window>
+        <Window type="Vanilla/Button" name="quitBtn" >
+            <Property name="Area" value="{{0,40},{0,150},{0,136},{0,182}}" />
+            <Property name="Font" value="Jura-10" />
+            <Property name="Text" value="Quit" />
         </Window>
     </Window>
 </GUILayout>

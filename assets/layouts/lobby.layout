@@ -1,61 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="DefaultWindow" name="Lobby" >
-        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-        <Property name="MaxSize" value="{{1,0},{1,0}}" />
-        <Window type="Vanilla/FrameWindow" name="LobbyFrameWindow" >
-            <Property name="Area" value="{{0,440},{0,195},{0.3,459},{0.3,274}}" />
-            <Property name="Text" value="Multiplayer Lobby" />
-            <Window type="Vanilla/Button" name="host" >
-                <Property name="Area" value="{{0,280},{0,20},{0,376},{0,52}}" />
-                <Property name="Text" value="Host Game" />
-            </Window>
-            <Window type="Vanilla/Button" name="join" >
-                <Property name="Area" value="{{0,280},{0,60},{0,376},{0,92}}" />
-                <Property name="Text" value="Join Game" />
-            </Window>
-            <Window type="Vanilla/Editbox" name="hostname" >
-                <Property name="Area" value="{{0,20},{0,60},{0,276},{0,92}}" />
-                <Property name="Text" value="Enter hostname.." />
-                <Property name="TooltipText" value="Enter the hostname to join" />
-            </Window>
-            <Window type="Vanilla/Label" name="serverhostname" >
-                <Property name="Area" value="{{0,20},{0,20},{0,276},{0,52}}" />
-                <Property name="Text" value="Press Host to start hosting a game." />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            </Window>
-            <Window type="Vanilla/Label" name="joinedplayers" >
-                <Property name="Area" value="{{0,20},{0,100},{0,148},{0,132}}" />
-                <Property name="Text" value="Joined Players" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            </Window>
-            <Window type="Vanilla/Label" name="player1" >
-                <Property name="Area" value="{{0,20},{0,140},{0,148},{0,172}}" />
-                <Property name="Text" value="Player 1" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            </Window>
-            <Window type="Vanilla/Label" name="player2" >
-                <Property name="Area" value="{{0,20},{0,180},{0,148},{0,212}}" />
-                <Property name="Text" value="Player 2" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            </Window>
-            <Window type="Vanilla/Label" name="ready1" >
-                <Property name="Area" value="{{0,250},{0,100},{0,378},{0,132}}" />
-                <Property name="Text" value="Ready" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            </Window>
-            <Window type="Vanilla/Checkbox" name="p2ready" >
-                <Property name="Area" value="{{0,305},{0,180},{0,325},{0,210}}" />
-            </Window>
-            <Window type="Vanilla/Button" name="start" >
-                <Property name="Area" value="{{0,267},{0,220},{0,363},{0,252}}" />
-                <Property name="Text" value="Start Game" />
-            </Window>
-            <Window type="Vanilla/Button" name="lobbyBackBtn" >
-                <Property name="Area" value="{{0,20},{0,220},{0,116},{0,252}}" />
-                <Property name="Text" value="Back" />
-            </Window>
+    <Window type="Vanilla/FrameWindow" name="LobbyFrameWindow" >
+        <Property name="Area" value="{{0,440},{0,195},{0.3,459},{0.3,274}}" />
+        <Property name="Text" value="Multiplayer Lobby" />
+        <Window type="Vanilla/Button" name="host" >
+            <Property name="Area" value="{{0,280},{0,20},{0,376},{0,52}}" />
+            <Property name="Text" value="Host Game" />
+        </Window>
+        <Window type="Vanilla/Button" name="join" >
+            <Property name="Area" value="{{0,280},{0,60},{0,376},{0,92}}" />
+            <Property name="Text" value="Join Game" />
+        </Window>
+        <Window type="Vanilla/Editbox" name="hostname" >
+            <Property name="Area" value="{{0,20},{0,60},{0,276},{0,92}}" />
+            <Property name="Text" value="Enter hostname.." />
+            <Property name="TooltipText" value="Enter the hostname to join" />
+        </Window>
+        <Window type="Vanilla/Label" name="serverhostname" >
+            <Property name="Area" value="{{0,20},{0,20},{0,276},{0,52}}" />
+            <Property name="Text" value="Press Host to start hosting a game." />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        </Window>
+        <Window type="Vanilla/Label" name="joinedplayers" >
+            <Property name="Area" value="{{0,20},{0,100},{0,148},{0,132}}" />
+            <Property name="Text" value="Joined Players" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        </Window>
+        <Window type="Vanilla/Label" name="player1" >
+            <Property name="Area" value="{{0,20},{0,140},{0,148},{0,172}}" />
+            <Property name="Text" value="Player 1" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        </Window>
+        <Window type="Vanilla/Label" name="player2" >
+            <Property name="Area" value="{{0,20},{0,180},{0,148},{0,212}}" />
+            <Property name="Text" value="Player 2" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        </Window>
+        <Window type="Vanilla/Label" name="ready1" >
+            <Property name="Area" value="{{0,250},{0,100},{0,378},{0,132}}" />
+            <Property name="Text" value="Ready" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        </Window>
+        <Window type="Vanilla/Checkbox" name="p2ready" >
+            <Property name="Area" value="{{0,305},{0,180},{0,325},{0,210}}" />
+        </Window>
+        <Window type="Vanilla/Button" name="start" >
+            <Property name="Area" value="{{0,267},{0,220},{0,363},{0,252}}" />
+            <Property name="Text" value="Start Game" />
+        </Window>
+        <Window type="Vanilla/Button" name="lobbyBackBtn" >
+            <Property name="Area" value="{{0,20},{0,220},{0,116},{0,252}}" />
+            <Property name="Text" value="Back" />
         </Window>
     </Window>
 </GUILayout>

@@ -275,20 +275,26 @@ bool TutorialApplication::keyReleased( const OIS::KeyEvent &arg )
 
 //Button handlers
 void TutorialApplication::registerEvents(){
-    CEGUI::Window *quit = gui->guiRoot->getChildRecursive("quitBtn");
+    CEGUI::Window *quit = gui->mainmenu->getChildRecursive("quitBtn");
     quit->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::quit, this));
 
-    CEGUI::Window *host = gui->guiRoot->getChildRecursive("host");
+    CEGUI::Window *host = gui->lobby->getChildRecursive("host");
     host->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::host, this));
 
-    CEGUI::Window *join = gui->guiRoot->getChildRecursive("join");
+    CEGUI::Window *join = gui->lobby->getChildRecursive("join");
     join->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::join, this));
 
-    CEGUI::Window *start = gui->guiRoot->getChildRecursive("start");
+    CEGUI::Window *start = gui->lobby->getChildRecursive("start");
     start->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::start, this));
 
-    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+    CEGUI::Window *p2ready = gui->lobby->getChildRecursive("p2ready");
     p2ready->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&TutorialApplication::clientReady, this));
+
+    CEGUI::Window *SEToggle = gui->settings->getChildRecursive("SEToggle");
+    SEToggle->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&TutorialApplication::pauseSoundEffects, this));
+
+    CEGUI::Window *MToggle = gui->settings->getChildRecursive("MToggle");
+    MToggle->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&TutorialApplication::pauseMusic, this));
 }
 
 void TutorialApplication::clientReady(){
@@ -298,34 +304,34 @@ void TutorialApplication::clientReady(){
     }
 }
 void TutorialApplication::start(){
-    CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p2ready"));
+    CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->lobby->getChildRecursive("p2ready"));
     if(!mIsClient && p2ready->isSelected()){
         Ogre::String message = "start_game ";
         netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
         gameStarted = true;
-        gui->guiRoot->hide();
+        gui->showScore();
     }
 }
 
 void TutorialApplication::host(){
     startNetworking(false);
-    CEGUI::Window *serverhostname = gui->guiRoot->getChildRecursive("serverhostname");
+    CEGUI::Window *serverhostname = gui->lobby->getChildRecursive("serverhostname");
     serverhostname -> setText("You're the new host!");
-    CEGUI::Window *player1 = gui->guiRoot->getChildRecursive("player1");
+    CEGUI::Window *player1 = gui->lobby->getChildRecursive("player1");
     player1->show();
-    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+    CEGUI::Window *p2ready = gui->lobby->getChildRecursive("p2ready");
     p2ready->setDisabled(true);
 
 }
 
 void TutorialApplication::join(){
-    CEGUI::Window *hostname = gui->guiRoot->getChildRecursive("hostname");
-    CEGUI::Window *start = gui->guiRoot->getChildRecursive("start");
-    CEGUI::Window *serverhostname = gui->guiRoot->getChildRecursive("serverhostname");
-    CEGUI::Window *host = gui->guiRoot->getChildRecursive("host");
-    CEGUI::Window *player1 = gui->guiRoot->getChildRecursive("player1");
-    CEGUI::Window *player2 = gui->guiRoot->getChildRecursive("player2");
-    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+    CEGUI::Window *hostname = gui->lobby->getChildRecursive("hostname");
+    CEGUI::Window *start = gui->lobby->getChildRecursive("start");
+    CEGUI::Window *serverhostname = gui->lobby->getChildRecursive("serverhostname");
+    CEGUI::Window *host = gui->lobby->getChildRecursive("host");
+    CEGUI::Window *player1 = gui->lobby->getChildRecursive("player1");
+    CEGUI::Window *player2 = gui->lobby->getChildRecursive("player2");
+    CEGUI::Window *p2ready = gui->lobby->getChildRecursive("p2ready");
     player1->show();
     player2->show();
     p2ready->show();
@@ -385,6 +391,22 @@ void TutorialApplication::fireProjectile()
             }
         }
     } 
+}
+
+void TutorialApplication::pauseMusic(){
+    if(Mix_VolumeMusic(-1) == 0){
+        Mix_VolumeMusic(128);
+    } else {
+        Mix_VolumeMusic(0);
+    }
+}
+
+void TutorialApplication::pauseSoundEffects(){
+    if(Mix_Volume(-1,-1) == 0){
+        Mix_Volume(-1, 128);
+    } else {
+        Mix_Volume(-1, 0);
+    }
 }
 
 void TutorialApplication::quit(){
@@ -544,7 +566,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
         {
             netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
         }
-}
+    }
     //Receive message
     if(mNetworkingStarted && gameStarted)
     {

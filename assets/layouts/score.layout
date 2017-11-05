@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="Vanilla/FrameWindow" name="ScoreFrameWindow" >
+        <Property name="Area" value="{{0,20},{0,20},{0.3,-250},{0.3,-124}}" />
+        <Property name="Text" value="Score" />
+        <Window type="Vanilla/Label" name="scorelabel" >
+            <Property name="Area" value="{{0,0},{0,0},{0,117},{0,32}}" />
+            <Property name="Font" value="Jura-10" />
+            <Property name="Text" value="0" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        </Window>
+    </Window>
+</GUILayout>
