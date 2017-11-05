@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="DefaultWindow" name="Settings" >
+        <Property name="Area" value="{{0,0},{0,0},{1,1},{1,1}}" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Window type="Vanilla/FrameWindow" name="FrameWindow" >
+            <Property name="Area" value="{{0,425},{0,165},{0.3,361},{0.3,269}}" />
+            <Property name="Text" value="Settings" />
+            <Window type="Vanilla/Label" name="Label" >
+                <Property name="Area" value="{{0,0},{0,10},{0,128},{0,42}}" />
+                <Property name="Text" value="Sound Effects" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Label" name="Label2" >
+                <Property name="Area" value="{{0,0},{0,50},{0,128},{0,82}}" />
+                <Property name="Text" value="Music" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            </Window>
+            <Window type="Vanilla/Checkbox" name="SEToggle" >
+                <Property name="Area" value="{{0,275},{0,10},{0,300},{0,42}}" />
+            </Window>
+            <Window type="Vanilla/Checkbox" name="MToggle" >
+                <Property name="Area" value="{{0,275},{0,50},{0,300},{0,82}}" />
+            </Window>
+            <Window type="Vanilla/Button" name="settingsBack" >
+                <Property name="Area" value="{{0,95},{0,250},{0,191},{0,282}}" />
+                <Property name="Text" value="Back" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

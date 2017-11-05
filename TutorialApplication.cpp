@@ -28,12 +28,8 @@ TutorialApplication::TutorialApplication(void)
     mNetworkingStarted = false;
     numEnemies = 0;
     maxProjectiles = 3;
-
+    gameStarted = false;
     spacePressed = false;
-
-
-    //Hardcoded IP number
-    mIPAddress = "128.83.120.90";
 
     SoundManager::initSoundManager();
 }
@@ -76,6 +72,11 @@ void TutorialApplication::createScene(void)
 
     //Physics setup
     sim = new Simulator();
+    gui = new GUIManager();
+
+    gui->createMenus();
+    //register event listeners
+    registerEvents();
 
     //For now, it's positioning will match that of the camera
     paddle = new Paddle(mSceneMgr, sim, 25, 25, "paddle", false);   //client
@@ -137,6 +138,7 @@ void TutorialApplication::createViewports(void)
     mCamera->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
 }
 
+
 //---------------------------------------------------------------------------
 //Keyboard input
 bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
@@ -149,52 +151,16 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
     //static bool buttonPressed = false;
     //For now, also move paddle
     Ogre::Vector3 dirVec = mCamera->getPosition();
-    if(mKeyboard->isKeyDown(OIS::KC_W))
+    if(mKeyboard->isKeyDown(OIS::KC_W) && gameStarted)
         dirVec.y += mMove;
-    if(mKeyboard->isKeyDown(OIS::KC_S))
+    if(mKeyboard->isKeyDown(OIS::KC_S) && gameStarted)
         dirVec.y -= mMove;
-    if(mKeyboard->isKeyDown(OIS::KC_A))
+    if(mKeyboard->isKeyDown(OIS::KC_A) && gameStarted)
         dirVec.x -= mMove;
-    if(mKeyboard->isKeyDown(OIS::KC_D))
+    if(mKeyboard->isKeyDown(OIS::KC_D) && gameStarted)
         dirVec.x += mMove;
-    if(mKeyboard->isKeyDown(OIS::KC_Q))
-    {
-        mCamNode->yaw(Ogre::Degree(mRotate), Ogre::Node::TS_WORLD);
-        paddle->getRootNode()->yaw(Ogre::Degree(mRotate), Ogre::Node::TS_WORLD);
-    }
-    if(mKeyboard->isKeyDown(OIS::KC_E))
-    {
-        mCamNode->yaw(Ogre::Degree(-mRotate), Ogre::Node::TS_WORLD);
-        paddle->getRootNode()->yaw(Ogre::Degree(-mRotate), Ogre::Node::TS_WORLD);
-    }
-    if(mKeyboard->isKeyDown(OIS::KC_I) && !mNetworkingStarted)  //start as server
-    {
-        startNetworking(false);
-    }
-    if(mKeyboard->isKeyDown(OIS::KC_O) && !mNetworkingStarted)  //start as client
-    {
-        startNetworking(true);
-        std::cout << "Hostname: " << netManager.getHostname() << std::endl;
-    }
-    if(mKeyboard->isKeyDown(OIS::KC_P) && mNetworkingStarted)   //end session
-    {
-        stopNetworking();
-    }
-    if(mKeyboard->isKeyDown(OIS::KC_L) && mNetworkingStarted ) //send message
-    {   
-        if(mIsClient)
-        {
-            Ogre::String message = "helloserver ";
-            netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
-        }
-        else if(netManager.getClients() > 0)
-        {
-            Ogre::String message = "helloclients ";
-            netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
-        }
-    }
 
-    if(mNetworkingStarted)
+    if(mNetworkingStarted && gameStarted)
     {
         if(!mIsClient)
         {
@@ -209,16 +175,6 @@ bool TutorialApplication::processUnbufferedInput(const Ogre::FrameEvent& fe)
     }
     return true;
 }
-
-//---------------------------------------------------------------------------
-//Mouse movement listener (implement later)
-bool TutorialApplication::mouseMoved(const OIS::MouseEvent& me) {
-    //How do we translate mouse coordinates to object/world coordinates?
-    // if(me.state.X.rel > 0)
-    //     std::cout << "xrel positive\n";
-    return true;
-}
-
 //---------------------------------------------------------------------------
 //Button call to determine which kind of netmanager to start
 void TutorialApplication::startNetworking(bool isClient) {
@@ -247,14 +203,134 @@ void TutorialApplication::stopNetworking() {
     std::cout << "Networking stopped\n";
 }
 
+CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)
+{
+    switch (buttonID)
+    {
+    case OIS::MB_Left:
+        return CEGUI::LeftButton;
+ 
+    case OIS::MB_Right:
+        return CEGUI::RightButton;
+ 
+    case OIS::MB_Middle:
+        return CEGUI::MiddleButton;
+ 
+    default:
+        return CEGUI::LeftButton;
+    }
+}
+
+bool TutorialApplication::mouseMoved(const OIS::MouseEvent& arg) {
+    CEGUI::System &sys = CEGUI::System::getSingleton();
+    sys.getDefaultGUIContext().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
+    // Scroll wheel.
+    if (arg.state.Z.rel)
+        sys.getDefaultGUIContext().injectMouseWheelChange(arg.state.Z.rel / 120.0f);
+    return true;
+}
+
+bool TutorialApplication::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+{
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(convertButton(id));
+    return true;
+}
+
+bool TutorialApplication::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+{
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(convertButton(id));
+    return true;
+}
+
 bool TutorialApplication::keyPressed( const OIS::KeyEvent &arg)
 {
+    CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
+    context.injectKeyDown((CEGUI::Key::Scan)arg.key);
+    context.injectChar((CEGUI::Key::Scan)arg.text);
+
     if(arg.key == OIS::KC_SPACE && !spacePressed)
     {
         spacePressed = true;
         fireProjectile();
     }
     return BaseApplication::keyPressed(arg);
+}
+
+bool TutorialApplication::keyReleased( const OIS::KeyEvent &arg )
+{
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan)arg.key);
+    if(arg.key == OIS::KC_SPACE) {
+        spacePressed = false;
+    }
+    return BaseApplication::keyReleased(arg);
+}
+
+//Button handlers
+void TutorialApplication::registerEvents(){
+    CEGUI::Window *quit = gui->guiRoot->getChildRecursive("quitBtn");
+    quit->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::quit, this));
+
+    CEGUI::Window *host = gui->guiRoot->getChildRecursive("host");
+    host->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::host, this));
+
+    CEGUI::Window *join = gui->guiRoot->getChildRecursive("join");
+    join->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::join, this));
+
+    CEGUI::Window *start = gui->guiRoot->getChildRecursive("start");
+    start->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::start, this));
+
+    CEGUI::Window *p1ready = gui->guiRoot->getChildRecursive("p1ready");
+    p1ready->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::ready, this));
+
+    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+    p2ready->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::ready, this));
+}
+
+void TutorialApplication::ready(){
+    if(mIsClient){
+        Ogre::String message = "client_ready ";
+        netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
+    } else {
+        Ogre::String message = "server_ready ";
+        netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
+    }
+}
+
+void TutorialApplication::start(){
+    CEGUI::ToggleButton *p1ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p1ready"));
+    CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p2ready"));
+    if(!mIsClient && p1ready->isSelected() && p2ready->isSelected()){
+        Ogre::String message = "start_game ";
+        netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
+        gameStarted = true;
+        gui->guiRoot->hide();
+    }
+}
+
+void TutorialApplication::host(){
+    startNetworking(false);
+    CEGUI::Window *serverhostname = gui->guiRoot->getChildRecursive("serverhostname");
+    serverhostname -> setText("You're the new host!");
+    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+    p2ready->setDisabled(true);
+
+}
+
+void TutorialApplication::join(){
+    CEGUI::Window *hostname = gui->guiRoot->getChildRecursive("hostname");
+    CEGUI::Window *p1ready = gui->guiRoot->getChildRecursive("p1ready");
+    CEGUI::Window *start = gui->guiRoot->getChildRecursive("start");
+    CEGUI::Window *serverhostname = gui->guiRoot->getChildRecursive("serverhostname");
+
+    mIPAddress = hostname->getText().c_str();
+    p1ready->setDisabled(true);
+    start->setDisabled(true);
+
+    startNetworking(true);
+
+    serverhostname -> setText("You've joined " + netManager.getHostname());
+    Ogre::String message = "client_joined ";
+    netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
 }
 
 void TutorialApplication::fireProjectile()
@@ -300,17 +376,11 @@ void TutorialApplication::fireProjectile()
                 break;
             }
         }
-    }
-
-    
+    } 
 }
 
-bool TutorialApplication::keyReleased( const OIS::KeyEvent &arg )
-{
-    if(arg.key == OIS::KC_SPACE) {
-        spacePressed = false;
-    }
-    return BaseApplication::keyReleased(arg);
+void TutorialApplication::quit(){
+    mShutDown = true;
 }
 
 Ogre::String TutorialApplication::createMessage()
@@ -380,11 +450,40 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     mKeyboard->capture();
     mMouse->capture();
 
-    if(sim)
+    if(sim && gameStarted)
         sim->stepSimulation(evt.timeSinceLastFrame);
 
+    //pregame startup
+    if(mNetworkingStarted && !gameStarted)
+    {
+        if(netManager.pollForActivity(1))
+        {
+            std::istringstream stream(netManager.udpServerData[0].output);
+            std::string s;
+            //Update server ship
+            stream >> s;
+            if(mIsClient){
+                if(s.compare("server_ready") == 0){
+                    CEGUI::Window *p1ready = gui->guiRoot->getChildRecursive("p1ready");
+                    p1ready->setSelected(true);
+                }
+                
+                if(s.compare("start_game") == 0){
+                    gameStarted = true;
+                    gui->guiRoot->hide();
+                }
+            } else {
+                if(s.compare("client_ready") == 0){
+                    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+                    p2ready->setSelected(true);
+                }
+            }
+            
+        }
+    }
+
     //Send message
-    if(mNetworkingStarted)
+    if(mNetworkingStarted && gameStarted)
     {
         Ogre::String message = createMessage();
         if(mIsClient)
@@ -397,7 +496,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
         }
     }
     //Receive message
-    if(mNetworkingStarted)
+    if(mNetworkingStarted && gameStarted)
     {
         if(mIsClient)
         {
