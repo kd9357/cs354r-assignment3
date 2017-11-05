@@ -29,6 +29,13 @@ void GUIManager::createMenus(){
     CEGUI::Window *singleplayerBtn = guiRoot->getChildRecursive("singleplayerBtn");
     singleplayerBtn->setDisabled(true);
 
+    CEGUI::Window *player1 = guiRoot->getChildRecursive("player1");
+    player1->hide();
+    CEGUI::Window *player2 = guiRoot->getChildRecursive("player2");
+    player2->hide();
+    CEGUI::Window *p2ready = guiRoot->getChildRecursive("p2ready");
+    p2ready->hide();
+
     CEGUI::Window *multiplayerBtn = guiRoot->getChildRecursive("multiplayerBtn");
     multiplayerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GUIManager::showLobby, this));
 

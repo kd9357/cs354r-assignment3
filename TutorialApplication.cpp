@@ -30,7 +30,6 @@ TutorialApplication::TutorialApplication(void)
     maxProjectiles = 3;
     gameStarted = false;
     spacePressed = false;
-
     SoundManager::initSoundManager();
 }
 //---------------------------------------------------------------------------
@@ -279,27 +278,19 @@ void TutorialApplication::registerEvents(){
     CEGUI::Window *start = gui->guiRoot->getChildRecursive("start");
     start->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::start, this));
 
-    CEGUI::Window *p1ready = gui->guiRoot->getChildRecursive("p1ready");
-    p1ready->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::ready, this));
-
     CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
-    p2ready->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&TutorialApplication::ready, this));
+    p2ready->subscribeEvent(CEGUI::ToggleButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&TutorialApplication::clientReady, this));
 }
 
-void TutorialApplication::ready(){
+void TutorialApplication::clientReady(){
     if(mIsClient){
         Ogre::String message = "client_ready ";
         netManager.messageServer(PROTOCOL_UDP, message.c_str(), message.length());
-    } else {
-        Ogre::String message = "server_ready ";
-        netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
     }
 }
-
 void TutorialApplication::start(){
-    CEGUI::ToggleButton *p1ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p1ready"));
     CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p2ready"));
-    if(!mIsClient && p1ready->isSelected() && p2ready->isSelected()){
+    if(!mIsClient && p2ready->isSelected()){
         Ogre::String message = "start_game ";
         netManager.messageClients(PROTOCOL_UDP, message.c_str(), message.length());
         gameStarted = true;
@@ -311,6 +302,8 @@ void TutorialApplication::host(){
     startNetworking(false);
     CEGUI::Window *serverhostname = gui->guiRoot->getChildRecursive("serverhostname");
     serverhostname -> setText("You're the new host!");
+    CEGUI::Window *player1 = gui->guiRoot->getChildRecursive("player1");
+    player1->show();
     CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
     p2ready->setDisabled(true);
 
@@ -321,8 +314,16 @@ void TutorialApplication::join(){
     CEGUI::Window *p1ready = gui->guiRoot->getChildRecursive("p1ready");
     CEGUI::Window *start = gui->guiRoot->getChildRecursive("start");
     CEGUI::Window *serverhostname = gui->guiRoot->getChildRecursive("serverhostname");
+    CEGUI::Window *host = gui->guiRoot->getChildRecursive("host");
+    CEGUI::Window *player1 = gui->guiRoot->getChildRecursive("player1");
+    CEGUI::Window *player2 = gui->guiRoot->getChildRecursive("player2");
+    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+    player1->show();
+    player2->show();
+    p2ready->show();
 
     mIPAddress = hostname->getText().c_str();
+    host->setDisabled(true);
     p1ready->setDisabled(true);
     start->setDisabled(true);
 
@@ -458,13 +459,14 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     {
         if(netManager.pollForActivity(1))
         {
-            std::istringstream stream(netManager.udpServerData[0].output);
-            std::string s;
-            //Update server ship
-            stream >> s;
             if(mIsClient){
+                std::istringstream stream(netManager.udpServerData[0].output);
+                std::string s;
+                //Update server ship
+                stream >> s;
+                std::cout << s << std::endl;
                 if(s.compare("server_ready") == 0){
-                    CEGUI::Window *p1ready = gui->guiRoot->getChildRecursive("p1ready");
+                    CEGUI::ToggleButton *p1ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p1ready"));
                     p1ready->setSelected(true);
                 }
                 
@@ -473,9 +475,20 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                     gui->guiRoot->hide();
                 }
             } else {
+                std::istringstream stream(netManager.udpClientData[0]->output);
+                std::string s;
+                //Update server ship
+                stream >> s;
+                std::cout << s << std::endl;
                 if(s.compare("client_ready") == 0){
-                    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+                    CEGUI::ToggleButton *p2ready = static_cast<CEGUI::ToggleButton*>(gui->guiRoot->getChildRecursive("p2ready"));
                     p2ready->setSelected(true);
+                }
+                if(s.compare("client_joined") == 0){
+                    CEGUI::Window *player2 = gui->guiRoot->getChildRecursive("player2");
+                    CEGUI::Window *p2ready = gui->guiRoot->getChildRecursive("p2ready");
+                    player2->show();
+                    p2ready->show();
                 }
             }
             

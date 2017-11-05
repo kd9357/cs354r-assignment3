@@ -40,9 +40,6 @@
                 <Property name="Text" value="Player 2" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
             </Window>
-            <Window type="Vanilla/Checkbox" name="p1ready" >
-                <Property name="Area" value="{{0,305},{0,140},{0,325},{0,170}}" />
-            </Window>
             <Window type="Vanilla/Label" name="ready1" >
                 <Property name="Area" value="{{0,250},{0,100},{0,378},{0,132}}" />
                 <Property name="Text" value="Ready" />
