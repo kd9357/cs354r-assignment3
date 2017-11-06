@@ -1,0 +1,25 @@
+Team Subsistence
+Assignment 3 Report
+
+Where we succeeded
+==================
+- Networking is reliable and accurate with little to no noticable desync.
+- Solved the problem of deleting and rebuilding objects like ogres and projectiles by moving
+  them out of view and recycling when they are spawned.
+- User-friendly GUI that is simple and easy to navigate.
+- Created the game we planned to make from the beginning.
+- Software architecture is seperated in classes, making it easy to extend or modify without
+  too much restructuring.
+- We enjoy playing our own game.
+
+Where we fell short
+===================
+- We did not have time to add upgrades to gameplay or more interesting features such as competitive play.
+- We could have added more polish, such as more sounds, better models, and better textures.
+- The physics still acts strangely, with bullets knocking ogres into some trajectory instead
+  of having them disappear.
+- There are a few problems in networking where there are slight slowdowns and jittering of
+  ships.
+- Physics/rendering is not paused when in a menu.
+- TutorialApplication holds more substantially more code than the other classes, so some more
+  seperation of code could have been done.

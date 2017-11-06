@@ -1,5 +1,6 @@
 #include "Projectile.h"
 #include "Simulator.h"
+#include "SoundManager.h"
 #include <iostream>
 
 Projectile::Projectile(Ogre::SceneManager* scnMgr, Simulator* sim, int* s, Ogre::String n, bool isClient) 
@@ -52,6 +53,7 @@ void Projectile::update(float elapsedTime) {
     if(objName.substr(0, 4) == "ogre")
     {
       //Play sound effect
+      SoundManager::playSoundEffect("explode");
       //Update score
       GameObject::score += 10;
       //std::cout << "score: " << GameObject::score << std::endl;

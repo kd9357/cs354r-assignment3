@@ -8,8 +8,8 @@ class SoundManager
 {
 	public:
 		static Mix_Music* bgMusic;
-		static Mix_Chunk* score;
 		static Mix_Chunk* fire;
+		static Mix_Chunk* explode;
 
 		SoundManager();
 		~SoundManager() {}

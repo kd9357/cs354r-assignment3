@@ -414,7 +414,7 @@ void TutorialApplication::fireProjectile()
 
 void TutorialApplication::pauseMusic(){
     if(Mix_VolumeMusic(-1) == 0){
-        Mix_VolumeMusic(128);
+        Mix_VolumeMusic(40);
     } else {
         Mix_VolumeMusic(0);
     }

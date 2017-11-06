@@ -1,0 +1,33 @@
+Team Subsistence
+USER MANUAL
+
+Build
+=====
+Run ./buildit
+Run ./assignment3
+
+Controls
+========
+W,A,S,D to move
+Space to shoot
+ESC to open menu
+
+Menus
+=====
+Click Single Player to start a single player game
+
+Click Multiplayer to start a multiplayer game.
+Within the lobby menu, click Host to become a host. The second players needs to type in the host
+IP/host name(CS machine name) and click Join to connect to the host. When they are ready, click the
+checkbox. The host can then start the game.
+
+Click Settings to enable/disable music and sound effects.
+
+Click Quit to exit the game.
+
+
+Objective
+=========
+Defend your turf from evil ogre enemies flying at you. Fire your proton cannon at them; only three bullets
+will appear, so use them wisely. If a single ogre gets past your defenses, it's game over! You must survive
+forever.
