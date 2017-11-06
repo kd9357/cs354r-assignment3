@@ -18,6 +18,7 @@ public:
     void showSettings(void);
     void showLobby(void);
     void showScore(void);
+    void pauseMenu(void);
 
 protected:
     CEGUI::OgreRenderer* mRenderer;

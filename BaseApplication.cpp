@@ -257,10 +257,6 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 //---------------------------------------------------------------------------
 bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 {
-  if (arg.key == OIS::KC_ESCAPE) {
-    mShutDown = true;
-  }
-
   return true;
 }
 //---------------------------------------------------------------------------

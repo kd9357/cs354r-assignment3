@@ -29,7 +29,7 @@ void GUIManager::createMenus(){
     settings = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("settings.layout");
     settings->hide();
     guiRoot->addChild(settings);
-    
+
     score = CEGUI::WindowManager::getSingleton().loadLayoutFromFile("score.layout");
     score->hide();
     guiRoot->addChild(score);
@@ -101,4 +101,15 @@ void GUIManager::showScore(){
     mainmenu->hide();
     lobby->hide();
     score->show();
+}
+
+void GUIManager::pauseMenu(){
+    mainmenu->show();
+    mainmenu->activate();
+
+    CEGUI::Window *multiplayerBtn = mainmenu->getChildRecursive("multiplayerBtn");
+    CEGUI::Window *singleplayerBtn = mainmenu->getChildRecursive("singleplayerBtn");
+
+    singleplayerBtn->setDisabled(true);
+    multiplayerBtn->setDisabled(true);
 }

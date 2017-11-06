@@ -254,6 +254,14 @@ bool TutorialApplication::keyPressed( const OIS::KeyEvent &arg)
     context.injectKeyDown((CEGUI::Key::Scan)arg.key);
     context.injectChar((CEGUI::Key::Scan)arg.text);
 
+    if (arg.key == OIS::KC_ESCAPE) {
+        if(!gui->mainmenu->isVisible()){
+            gui->pauseMenu();
+        } else {
+            gui->showScore();
+        }
+    }
+
     if(arg.key == OIS::KC_SPACE && !spacePressed)
     {
         spacePressed = true;
@@ -321,7 +329,7 @@ void TutorialApplication::startSinglePlayer()
     gameStarted = true;
     mMultiplayer = false;
     mNetworkingStarted = false;
-    gui->guiRoot->hide();
+    gui->showScore();
     paddle2->getRootNode()->setPosition(100, -500, 0);
 }
 
@@ -587,7 +595,7 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
                 
                 if(s.compare("start_game") == 0){
                     gameStarted = true;
-                    gui->guiRoot->hide();
+                    gui->showScore();
                 }
             } else {
                 std::istringstream stream(netManager.udpClientData[0]->output);
@@ -717,7 +725,11 @@ bool TutorialApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     if(!processUnbufferedInput(evt))
         return false;
 
-    std::cout << "score: " << GameObject::score << std::endl;
+
+
+    CEGUI::Window *scorelabel = gui->score->getChildRecursive("scorelabel");
+    scorelabel->setText(Ogre::StringConverter::toString(GameObject::score).c_str());
+
     return true;
 }
 
